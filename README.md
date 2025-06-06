@@ -14,6 +14,10 @@ npm run dev
 yarn dev
 # or
 pnpm dev
+# iconos
+npm install react-icons
+# rutas
+ npm install react-router-dom
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

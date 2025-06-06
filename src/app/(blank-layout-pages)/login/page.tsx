@@ -1,14 +1,22 @@
+'use client'
+
 // Component Imports
 import Login from '@views/Login'
+import App from '../../app'
 
-// Server Action Imports
-import { getServerMode } from '@core/utils/serverHelpers'
+// Type Imports
+import type { Mode } from '@core/types'
 
-const LoginPage = () => {
-  // Vars
-  const mode = getServerMode()
+interface LoginPageProps {
+  mode: Mode
+}
 
-  return <Login mode={mode} />
+const LoginPage = ({ mode }: LoginPageProps) => {
+  return (
+    <App>
+      <Login mode={mode} />
+    </App>
+  )
 }
 
 export default LoginPage

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Placeholder icon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sneat Auth App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#696CFF', // Usado para bg-primary, text-primary, border-primary, ring-primary
+              'primary-dark': '#5f61e5', // Usado para hover:bg-primary-dark etc.
+              'primary-text': '#566A7F', // Usado para text-primary-text
+              'primary-bg': '#F5F5F9', // Usado para bg-primary-bg
+              'secondary-text': '#697A8D', // Usado para text-secondary-text
+              'card-bg': '#FFFFFF' // Usado para bg-card-bg
+            }
+          }
+        }
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://esm.sh/react@^19.1.0",
+          "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+          "react/": "https://esm.sh/react@^19.1.0/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
