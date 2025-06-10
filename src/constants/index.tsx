@@ -1,8 +1,10 @@
 'use client'
 
 import React from 'react'
+
 import { FaInstagram, FaFacebook, FaSquareTwitter, FaLinkedin } from 'react-icons/fa6'
-import { SocialLink } from '../types/auth'
+
+import type { SocialLink } from '../types/auth'
 
 export const ROUTES = {
   HOME: '/',
@@ -15,7 +17,7 @@ export const ROUTES = {
 }
 
 export const IMAGES = {
-  LOGO: 'https://ecomercial.com.mx/wp-content/uploads/2024/09/ecomercialsitioweb.png',
+  LOGO: '/images/logos/ecomercial-logo.png',
   ILLUSTRATIONS: {
     LOGIN: 'https://picsum.photos/seed/loginpage/600/700',
     REGISTER: 'https://picsum.photos/seed/registerpage/600/700',

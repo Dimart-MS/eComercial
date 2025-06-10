@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useContext, useEffect } from 'react'
+
 import { useRouter, usePathname } from 'next/navigation'
+
 import { AuthContext } from '@/contexts/AuthContext'
 import { ROUTES } from '@/constants'
 import Login from '@views/Login'
@@ -49,7 +51,7 @@ const GuestRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Componente principal
 const App: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const pathname = usePathname()
+  const pathname = usePathname() || ''
   const auth = useContext(AuthContext)
 
   // Determinar si la ruta actual es protegida o pública
@@ -66,7 +68,7 @@ const App: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // Redirigir a login si no hay token y no estamos en una ruta de invitado
   if (!auth?.token && !isGuestRoute) {
-    return <Login mode='light' />
+    return <Login />
   }
 
   return <>{children}</>

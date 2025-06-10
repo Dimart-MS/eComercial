@@ -1,8 +1,10 @@
 'use client'
 
 import React, { createContext, useState, useEffect, useCallback } from 'react'
+
 import { useRouter } from 'next/navigation'
-import { User, AuthContextType } from '../types/auth'
+
+import type { User, AuthContextType } from '../types/auth'
 import { ROUTES, LOCAL_STORAGE_KEYS, IMAGES } from '../constants/index'
 
 /**
@@ -81,6 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     window.addEventListener('storage', handleStorageChange)
+
     return () => {
       window.removeEventListener('storage', handleStorageChange)
     }
@@ -106,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: IMAGES.AVATAR,
           role: 'Admin'
         }
+
         const mockToken = Date.now().toString() + Math.random().toString(36).substring(7)
 
         setUser(mockUser)
@@ -158,6 +162,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const forgotPassword = async (email: string): Promise<void> => {
     setIsLoading(true)
     setError(null)
+
+    // Validación de correo vacío
+    if (!email.trim()) {
+      setIsLoading(false)
+      setError('El correo no puede estar vacío')
+
+      return
+    }
+
+    // Validación de formato de correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailRegex.test(email)) {
+      setIsLoading(false)
+      setError('El formato del correo es inválido')
+
+      return
+    }
 
     try {
       await new Promise(resolve => setTimeout(resolve, 800))

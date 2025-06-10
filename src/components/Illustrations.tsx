@@ -30,7 +30,10 @@ type IllustrationsProp = {
 
 // Styled Components
 const MaskImg = styled('img')({
-  inlineSize: '100%',
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  objectPosition: 'center',
   position: 'absolute',
   insetBlockEnd: 0,
   zIndex: -1

@@ -1,8 +1,11 @@
 'use client'
 
 import React from 'react'
-import { Box, Paper, useTheme } from '@mui/material'
+
 import Link from 'next/link'
+
+import { Box, Paper, useTheme } from '@mui/material'
+
 import { ROUTES, IMAGES } from '@/constants'
 
 /**
@@ -51,16 +54,18 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ illustrationSrc, children, page
         sx={{
           display: { xs: 'none', md: 'flex' },
           width: { md: '75%' },
-          alignItems: 'center',
+          alignItems: 'stretch',
           justifyContent: 'center',
-          p: 4,
+          p: 0,
           position: 'relative',
           bgcolor: theme.palette.grey[100],
-          color: theme.palette.grey[900]
+          color: theme.palette.grey[900],
+          minHeight: '100vh',
+          overflow: 'hidden'
         }}
       >
         {/* Logo */}
-        <Link href={ROUTES.LOGIN} style={{ position: 'absolute', top: 32, left: 32 }}>
+        <Link href={ROUTES.LOGIN} style={{ position: 'absolute', top: 32, left: 32, zIndex: 2 }}>
           <img src={IMAGES.LOGO} alt='Logo' style={{ height: 32 }} />
         </Link>
 
@@ -70,9 +75,14 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ illustrationSrc, children, page
           src={illustrationSrc}
           alt={pageTitle}
           sx={{
-            maxWidth: '100%',
-            maxHeight: 'calc(100vh - 10rem)',
-            objectFit: 'contain'
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1
           }}
         />
       </Box>

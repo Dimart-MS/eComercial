@@ -9,8 +9,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
@@ -21,16 +19,11 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
-// Type Imports
-import type { Mode } from '@core/types'
-
 // Component Imports
-import Logo from '@components/layout/shared/Logo'
-import Illustrations from '@components/Illustrations'
 import AuthLayout from '@components/auth/AuthLayout'
 
 // Config Imports
-import themeConfig from '@configs/themeConfig'
+import { useThemeMode } from '@/contexts/ThemeModeContext'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -41,52 +34,61 @@ import { AuthContext } from '../contexts/AuthContext'
 // Constants Imports
 import { TEXT_CONTENT, ROUTES } from '@/constants'
 
-const Login = ({ mode }: { mode: Mode }) => {
+const Login = () => {
+  // Obtén el modo desde el contexto global
+  const { mode } = useThemeMode()
+
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false })
   const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
 
   // Vars
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
+  const darkImg = '/images/pages/fondo.png'
+  const lightImg = '/images/pages/fondo2.jpg'
 
   // Hooks
   const router = useRouter()
   const authBackground = useImageVariant(mode, lightImg, darkImg)
   const auth = useContext(AuthContext)
 
-  console.log('Login - Estado del contexto:', {
-    isLoading: auth?.isLoading,
-    error: auth?.error,
-    hasUser: !!auth?.user
-  })
+  // console.log('Login - Estado del contexto:', {
+  //   isLoading: auth?.isLoading,
+  //   error: auth?.error,
+  //   hasUser: !!auth?.user
+  // })
 
   useEffect(() => {
-    console.log('Login - Efecto de error:', { error: auth?.error })
+    // console.log('Login - Efecto de error:', { error: auth?.error })
     setErrors(prevErrors => {
       if (prevErrors.form !== auth?.error) {
         const newErrors = { ...prevErrors }
+
         if (auth?.error) {
           newErrors.form = auth.error
         } else {
           delete newErrors.form
         }
+
         return newErrors
       }
+
       return prevErrors
     })
   }, [auth?.error])
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
+  // trae las propiedades del formulario cuando se activa el evento que definio
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
+
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
 
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: undefined }))
     }
+
     if (errors.form) {
       setErrors(prev => ({ ...prev, form: undefined }))
       auth?.clearError()
@@ -95,31 +97,37 @@ const Login = ({ mode }: { mode: Mode }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('Login - Iniciando submit')
+
+    // console.log('Login - Iniciando submit')
     auth?.clearError()
 
     const validationErrors: { [key: string]: string } = {}
+
     if (!formData.email) validationErrors.email = 'El email es requerido'
     if (!formData.password) validationErrors.password = 'La contraseña es requerida'
+
     if (formData.password && formData.password.length < 8) {
       validationErrors.password = 'La contraseña debe tener al menos 8 caracteres'
     }
 
     if (Object.keys(validationErrors).length > 0) {
-      console.log('Login - Errores de validación:', validationErrors)
+      // console.log('Login - Errores de validación:', validationErrors)
       setErrors(validationErrors)
+
       return
     }
 
     if (!auth) {
       console.log('Login - No hay contexto de autenticación')
+
       return
     }
 
     try {
-      console.log('Login - Llamando a auth.login')
+      // console.log('Login - Llamando a auth.login')
       await auth.login(formData.email, formData.password)
-      console.log('Login - Login exitoso, redirigiendo')
+
+      // console.log('Login - Login exitoso, redirigiendo')
       router.push('/')
     } catch (err) {
       console.error('Login - Error en submit:', err)

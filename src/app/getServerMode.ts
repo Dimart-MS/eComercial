@@ -7,5 +7,7 @@ import { cookies } from 'next/headers'
  */
 export function getServerMode(): string {
   const cookieStore = cookies()
-  return cookieStore.get('mode')?.value || 'light'
+
+  
+return cookieStore.get('mode')?.value || 'light'
 }
