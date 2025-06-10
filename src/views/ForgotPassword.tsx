@@ -33,7 +33,7 @@ import { AuthContext } from '../contexts/AuthContext'
 const ForgotPassword = ({ mode }: { mode: Mode }) => {
   // Vars
   const darkImg = '/images/pages/fondo.png'
-  const lightImg = '/images/pages/fondo2.png'
+  const lightImg = '/images/pages/fondo2.jpg'
 
   // Hooks
   const authBackground = useImageVariant(mode, lightImg, darkImg)
@@ -118,7 +118,6 @@ const ForgotPassword = ({ mode }: { mode: Mode }) => {
             </Link>
           </Typography>
         </Form>
-        <Illustrations maskImg={{ src: authBackground }} />
       </div>
     </AuthLayout>
   )

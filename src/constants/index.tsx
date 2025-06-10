@@ -57,7 +57,13 @@ export const TEXT_CONTENT = {
     EMAIL_LABEL: 'Email',
     SEND_BUTTON: 'Enviar enlace',
     BACK_TO_LOGIN: 'Volver al inicio de sesión'
-  }
+  },
+  SOCIAL_LINKS: [
+    { icon: 'ri-facebook-fill', href: 'https://facebook.com', label: 'Facebook', className: 'text-facebook' },
+    { icon: 'ri-twitter-fill', href: 'https://twitter.com', label: 'Twitter', className: 'text-twitter' },
+    { icon: 'ri-github-fill', href: 'https://github.com', label: 'Github', className: 'text-github' },
+    { icon: 'ri-linkedin-fill', href: 'https://linkedin.com', label: 'Linkedin', className: 'text-linkedin' }
+  ]
 }
 
 // Iconos de React

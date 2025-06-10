@@ -14,8 +14,9 @@ import '@assets/iconify-icons/generated-icons.css'
 import Providers from '@components/Providers'
 import { ThemeModeProvider } from '@/contexts/ThemeModeContext'
 
-//navbar
-import Navbar from '@/components/Navbar'
+// Mode
+import ModeDropdown from '@components/layout/shared/ModeDropdown'
+import { SettingsProvider } from '@core/contexts/settingsContext'
 
 export const metadata = {
   title: 'Demo: Materio - NextJS Dashboard Free',
@@ -30,10 +31,12 @@ const RootLayout = ({ children }: ChildrenType) => {
   return (
     <html id='__next' dir={direction}>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
-        <ThemeModeProvider>
-          <Navbar />
-          <Providers direction={direction}>{children}</Providers>
-        </ThemeModeProvider>
+        <SettingsProvider settingsCookie={null} mode={undefined}>
+          <ThemeModeProvider>
+            <ModeDropdown />
+            <Providers direction={direction}>{children}</Providers>
+          </ThemeModeProvider>
+        </SettingsProvider>
       </body>
     </html>
   )

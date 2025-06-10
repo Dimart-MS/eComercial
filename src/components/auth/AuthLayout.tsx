@@ -97,7 +97,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ illustrationSrc, children, page
           justifyContent: 'center',
           p: { xs: 3, sm: 6 },
           minHeight: { xs: '100vh', md: 'auto' },
-          bgcolor: theme.palette.grey[50]
+          bgcolor: theme.palette.background.default
         }}
       >
         {/* Logo para vista móvil */}

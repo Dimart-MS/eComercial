@@ -25,6 +25,9 @@ import AuthLayout from '@components/auth/AuthLayout'
 // Config Imports
 import { useThemeMode } from '@/contexts/ThemeModeContext'
 
+// PRUEBA: Importa useSettings para obtener el modo desde el contexto de settings
+import { useSettings } from '@core/hooks/useSettings'
+
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 
@@ -35,8 +38,12 @@ import { AuthContext } from '../contexts/AuthContext'
 import { TEXT_CONTENT, ROUTES } from '@/constants'
 
 const Login = () => {
-  // Obtén el modo desde el contexto global
-  const { mode } = useThemeMode()
+  // PRUEBA: Obtén el modo desde el contexto de settings
+  const { settings } = useSettings()
+  const mode = settings.mode ?? 'light'
+
+  // Obtén el modo desde el contexto global (se restablece cuando acabe la prueba)
+  // const { mode } = useThemeMode()
 
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
