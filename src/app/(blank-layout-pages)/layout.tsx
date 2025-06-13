@@ -4,16 +4,17 @@ import type { ChildrenType } from '@core/types'
 // Component Imports
 import Providers from '@components/Providers'
 import BlankLayout from '@layouts/BlankLayout'
-import { getServerMode } from '@/app/getServerMode'
+import AuthLayout from './AuthLayout'
 
 const Layout = ({ children }: ChildrenType) => {
   // Vars
   const direction = 'ltr'
-  const mode = getServerMode()
 
   return (
     <Providers direction={direction}>
-      <BlankLayout>{children}</BlankLayout>
+      <AuthLayout>
+        <BlankLayout>{children}</BlankLayout>
+      </AuthLayout>
     </Providers>
   )
 }

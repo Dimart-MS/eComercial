@@ -7,13 +7,10 @@ import { FaInstagram, FaFacebook, FaSquareTwitter, FaLinkedin } from 'react-icon
 import type { SocialLink } from '../types/auth'
 
 export const ROUTES = {
-  HOME: '/',
-  LOGIN: '/login',
+  LOGIN: '/',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
-  DASHBOARD: '/dashboard',
-  PROFILE: '/profile',
-  SETTINGS: '/settings'
+  PANEL: '/panel'
 }
 
 export const IMAGES = {

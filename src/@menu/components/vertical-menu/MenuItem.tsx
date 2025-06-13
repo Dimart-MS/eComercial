@@ -40,7 +40,7 @@ export type MenuItemProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'prefi
     prefix?: ReactNode
     suffix?: ReactNode
     disabled?: boolean
-    target?: string
+    target?: string //habre otra bentana si es _blank
     rel?: string
     onActiveChange?: (active: boolean) => void
 
@@ -105,16 +105,14 @@ const MenuItem: ForwardRefRenderFunction<HTMLLIElement, MenuItemProps> = (props,
   useEffect(() => {
     const href = rest.href
 
-    if (href) {
-      // Check if the current url matches any of the children urls
-      if (exactMatch ? pathname === href : activeUrl && pathname.includes(activeUrl)) {
-        setActive(true)
-      } else {
-        setActive(false)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+    // Si no tenemos href o pathname todavía, salimos sin hacer nada
+    if (!href || !pathname) return
+
+    // Comparamos de forma exacta o parcial según la prop exactMatch
+    const match = exactMatch ? pathname === href : activeUrl && pathname.includes(activeUrl)
+
+    setActive(!!match)
+  }, [pathname, exactMatch, activeUrl, rest.href])
 
   // Call the onActiveChange callback when the active state changes.
   useUpdateEffect(() => {

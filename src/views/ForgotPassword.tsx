@@ -21,7 +21,6 @@ import { useImageVariant } from '@core/hooks/useImageVariant'
 // Component Imports
 import Form from '@components/Form'
 import DirectionalIcon from '@components/DirectionalIcon'
-import Illustrations from '@components/Illustrations'
 import AuthLayout from '@/components/auth/AuthLayout'
 
 // Constant Imports

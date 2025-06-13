@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Estados
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
@@ -47,6 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Efecto para cargar el estado de autenticación al montar el componente
    * Verifica si hay un token y usuario almacenados
    */
+
   useEffect(() => {
     const storedToken = localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN)
     const storedUser = localStorage.getItem(LOCAL_STORAGE_KEYS.USER)
@@ -59,7 +60,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error al cargar el estado de autenticación', e)
         handleLogout()
       }
+    } else {
+      setToken(null)
+      setUser(null)
     }
+
+    setIsLoading(false)
   }, [handleLogout])
 
   /**
@@ -116,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(mockToken)
         localStorage.setItem(LOCAL_STORAGE_KEYS.USER, JSON.stringify(mockUser))
         localStorage.setItem(LOCAL_STORAGE_KEYS.TOKEN, mockToken)
-        router.push(ROUTES.DASHBOARD)
+        router.push(ROUTES.PANEL)
       } else {
         setError('Email o contraseña incorrectos')
       }

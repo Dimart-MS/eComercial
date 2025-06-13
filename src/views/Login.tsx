@@ -19,17 +19,14 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
-// Component Imports
-import AuthLayout from '@components/auth/AuthLayout'
-
-// Config Imports
-import { useThemeMode } from '@/contexts/ThemeModeContext'
-
-// PRUEBA: Importa useSettings para obtener el modo desde el contexto de settings
-import { useSettings } from '@core/hooks/useSettings'
+// Type Imports
+import type { Mode } from '@core/types'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
+
+// Component Imports
+import AuthLayout from '@components/auth/AuthLayout'
 
 // Context Imports
 import { AuthContext } from '../contexts/AuthContext'
@@ -37,36 +34,22 @@ import { AuthContext } from '../contexts/AuthContext'
 // Constants Imports
 import { TEXT_CONTENT, ROUTES } from '@/constants'
 
-const Login = () => {
-  // PRUEBA: Obtén el modo desde el contexto de settings
-  const { settings } = useSettings()
-  const mode = settings.mode ?? 'light'
+const Login = ({ mode }: { mode: Mode }) => {
+  // Vars
+  const darkImg = '/images/pages/fondo.png'
+  const lightImg = '/images/pages/fondo2.jpg'
 
-  // Obtén el modo desde el contexto global (se restablece cuando acabe la prueba)
-  // const { mode } = useThemeMode()
+  // Hooks
+  const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const router = useRouter()
+  const auth = useContext(AuthContext)
 
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false })
   const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
 
-  // Vars
-  const darkImg = '/images/pages/fondo.png'
-  const lightImg = '/images/pages/fondo2.jpg'
-
-  // Hooks
-  const router = useRouter()
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
-  const auth = useContext(AuthContext)
-
-  // console.log('Login - Estado del contexto:', {
-  //   isLoading: auth?.isLoading,
-  //   error: auth?.error,
-  //   hasUser: !!auth?.user
-  // })
-
   useEffect(() => {
-    // console.log('Login - Efecto de error:', { error: auth?.error })
     setErrors(prevErrors => {
       if (prevErrors.form !== auth?.error) {
         const newErrors = { ...prevErrors }
@@ -86,7 +69,6 @@ const Login = () => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  // trae las propiedades del formulario cuando se activa el evento que definio
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
 
@@ -104,8 +86,6 @@ const Login = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-    // console.log('Login - Iniciando submit')
     auth?.clearError()
 
     const validationErrors: { [key: string]: string } = {}
@@ -118,24 +98,16 @@ const Login = () => {
     }
 
     if (Object.keys(validationErrors).length > 0) {
-      // console.log('Login - Errores de validación:', validationErrors)
       setErrors(validationErrors)
 
       return
     }
 
-    if (!auth) {
-      console.log('Login - No hay contexto de autenticación')
-
-      return
-    }
+    if (!auth) return
 
     try {
-      // console.log('Login - Llamando a auth.login')
       await auth.login(formData.email, formData.password)
-
-      // console.log('Login - Login exitoso, redirigiendo')
-      router.push('/')
+      router.push('/panel')
     } catch (err) {
       console.error('Login - Error en submit:', err)
     }
@@ -166,6 +138,7 @@ const Login = () => {
             error={!!errors.email}
             helperText={errors.email}
           />
+
           <TextField
             fullWidth
             label={TEXT_CONTENT.LOGIN.PASSWORD_LABEL}
@@ -191,6 +164,7 @@ const Login = () => {
               )
             }}
           />
+
           <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
             <FormControlLabel
               control={<Checkbox name='rememberMe' checked={formData.rememberMe} onChange={handleChange} />}
@@ -200,16 +174,20 @@ const Login = () => {
               {TEXT_CONTENT.LOGIN.FORGOT_PASSWORD}
             </Typography>
           </div>
+
           <Button fullWidth variant='contained' type='submit' disabled={auth?.isLoading}>
             {auth?.isLoading ? 'Loading...' : TEXT_CONTENT.LOGIN.LOGIN_BUTTON}
           </Button>
+
           <div className='flex justify-center items-center flex-wrap gap-2'>
             <Typography>{TEXT_CONTENT.LOGIN.NO_ACCOUNT}</Typography>
             <Typography component={Link} href={ROUTES.REGISTER} color='primary'>
               {TEXT_CONTENT.LOGIN.REGISTER_LINK}
             </Typography>
           </div>
+
           <Divider className='gap-3'>{TEXT_CONTENT.LOGIN.OR}</Divider>
+
           <div className='flex justify-center items-center gap-2'>
             <IconButton size='small' className='text-facebook'>
               <i className='ri-facebook-fill' />

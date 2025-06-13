@@ -18,12 +18,14 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
+// Type Imports
+import type { Mode } from '@core/types'
+
 // Componentes
 import AuthLayout from '@components/auth/AuthLayout'
 
 // Hooks
 import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useSettings } from '@core/hooks/useSettings'
 
 // Constantes y utils
 import { TEXT_CONTENT, SOCIAL_LINKS, ROUTES } from '@/constants'
@@ -32,10 +34,7 @@ import { validateRegistrationForm } from '@/utils/validators'
 const darkImg = '/images/pages/fondo.png'
 const lightImg = '/images/pages/fondo2.jpg'
 
-const Register = () => {
-  const { settings } = useSettings()
-  const mode = settings.mode ?? 'light'
-
+const Register = ({ mode }: { mode: Mode }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',

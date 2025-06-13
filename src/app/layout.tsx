@@ -15,8 +15,8 @@ import Providers from '@components/Providers'
 import { ThemeModeProvider } from '@/contexts/ThemeModeContext'
 
 // Mode
-import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import { SettingsProvider } from '@core/contexts/settingsContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 export const metadata = {
   title: 'Demo: Materio - NextJS Dashboard Free',
@@ -31,12 +31,13 @@ const RootLayout = ({ children }: ChildrenType) => {
   return (
     <html id='__next' dir={direction}>
       <body className='flex is-full min-bs-full flex-auto flex-col'>
-        <SettingsProvider settingsCookie={null} mode={undefined}>
-          <ThemeModeProvider>
-            <ModeDropdown />
-            <Providers direction={direction}>{children}</Providers>
-          </ThemeModeProvider>
-        </SettingsProvider>
+        <AuthProvider>
+          <SettingsProvider settingsCookie={null} mode={undefined}>
+            <ThemeModeProvider>
+              <Providers direction={direction}>{children}</Providers>
+            </ThemeModeProvider>
+          </SettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   )
