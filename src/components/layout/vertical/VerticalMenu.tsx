@@ -69,10 +69,10 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           </SubMenu>
         </MenuSection>
         <MenuSection label='Comunicación'>
-          <MenuItem href='/panel/chat' icon={<i className='ri-calendar-line' />}>
+          <MenuItem href='/panel/chat' icon={<i className='ri-wechat-line' />}>
             Chat
           </MenuItem>
-          <MenuItem href='/panel/agenda' icon={<i className='ri-drag-drop-line' />}>
+          <MenuItem href='/panel/agenda' icon={<i className='ri-calendar-line' />}>
             Agenda
           </MenuItem>
           <MenuItem href='/panel/email' icon={<i className='ri-mail-open-line' />}>
@@ -83,13 +83,26 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           </MenuItem>
           {/* <SubMenu label='Comunicación' icon={<i className='ri-file-copy-line' />}></SubMenu> */}
         </MenuSection>
-        <MenuSection label='operaciones'>
-          <MenuItem href='/panel/account-settings' icon={<i className='ri-user-settings-line' />}>
+        <MenuSection label='Operaciones'>
+          {/* <MenuItem href='/panel/account-settings' icon={<i className='ri-user-settings-line' />}>
             Account Settings
+          </MenuItem> */}
+          <MenuItem href='/panel/cotizaciones' icon={<i className='ri-file-list-line' />}>
+            Cotizaciones
           </MenuItem>
-          <MenuItem href='/panel/cotizacion' icon={<i className='ri-wallet-line' />}>
-            Cotisación
+          <MenuItem href='/panel/cotizacion' icon={<i className='ri-clipboard-line' />}>
+            Pedidos
           </MenuItem>
+          <MenuItem href='/panel/cotizacion' icon={<i className='ri-numbers-line' />}>
+            Ventas
+          </MenuItem>
+          <MenuItem href='/panel/cotizacion' icon={<i className='ri-file-text-line' />}>
+            Facturación
+          </MenuItem>
+          <SubMenu label='Metodos de pago' icon={<i className='ri-bill-line' />}>
+            <MenuItem href='/panel/contactos'>OpenPay</MenuItem>
+            <MenuItem href='/panel/empresas'>Mercado Pago</MenuItem>
+          </SubMenu>
           {/* <SubMenu label='Auth Pages' icon={<i className='ri-shield-keyhole-line' />}>
             <MenuItem href='/login' target='_blank'>
               Login
