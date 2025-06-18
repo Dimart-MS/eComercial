@@ -82,7 +82,7 @@ const colorSchemes = (): Theme['colorSchemes'] => {
         divider: `rgb(var(--mui-mainColorChannels-light) / 0.12)`,
         dividerChannel: 'var(--mui-mainColorChannels-light)',
         background: {
-          default: skin === 'bordered' ? '#FFFFFF' : '#F4F5FA',
+          default: skin === 'bordered' ? '#FFFFFF' : '#F5F7FA',
           paper: '#FFFFFF'
         },
         action: {
@@ -154,13 +154,13 @@ const colorSchemes = (): Theme['colorSchemes'] => {
           border: 'var(--mui-palette-divider)'
         },
         customColors: {
-          bodyBg: '#F4F5FA',
-          chatBg: '#F7F6FA',
-          greyLightBg: '#FAFAFA',
+          bodyBg: '#F5F7FA',
+          chatBg: '#F0F4F8',
+          greyLightBg: '#F8FAFC',
           inputBorder: `rgb(var(--mui-mainColorChannels-light) / 0.22)`,
-          tableHeaderBg: '#F6F7FB',
+          tableHeaderBg: '#F0F4F8',
           tooltipText: '#FFFFFF',
-          trackBg: '#F0F2F8'
+          trackBg: '#E6EEF5'
         }
       }
     },
@@ -241,8 +241,8 @@ const colorSchemes = (): Theme['colorSchemes'] => {
         divider: `rgb(var(--mui-mainColorChannels-dark) / 0.12)`,
         dividerChannel: 'var(--mui-mainColorChannels-dark)',
         background: {
-          default: skin === 'bordered' ? '#312D4B' : '#28243D',
-          paper: '#312D4B'
+          default: '#1A1F2E',
+          paper: '#252B3D'
         },
         action: {
           active: `rgb(var(--mui-mainColorChannels-dark) / 0.6)`,
@@ -274,7 +274,7 @@ const colorSchemes = (): Theme['colorSchemes'] => {
           successFilledBg: 'var(--mui-palette-success-main)'
         },
         Avatar: {
-          defaultBg: '#3F3B59'
+          defaultBg: '#2D3446'
         },
         Chip: {
           defaultBorder: 'var(--mui-palette-divider)'
@@ -293,7 +293,7 @@ const colorSchemes = (): Theme['colorSchemes'] => {
           successBg: 'var(--mui-palette-success-mainOpacity)'
         },
         SnackbarContent: {
-          bg: '#F7F4FF',
+          bg: '#2D3446',
           color: 'var(--mui-palette-background-paper)'
         },
         Switch: {
@@ -307,19 +307,19 @@ const colorSchemes = (): Theme['colorSchemes'] => {
           successDisabledColor: 'var(--mui-palette-common-white)'
         },
         Tooltip: {
-          bg: '#F7F4FF'
+          bg: '#2D3446'
         },
         TableCell: {
           border: 'var(--mui-palette-divider)'
         },
         customColors: {
-          bodyBg: '#28243D',
-          chatBg: '#373452',
-          greyLightBg: '#373350',
+          bodyBg: '#1A1F2E',
+          chatBg: '#2D3446',
+          greyLightBg: '#252B3D',
           inputBorder: `rgb(var(--mui-mainColorChannels-dark) / 0.22)`,
-          tableHeaderBg: '#3D3759',
-          tooltipText: '#312D4B',
-          trackBg: '#474360'
+          tableHeaderBg: '#2D3446',
+          tooltipText: '#1A1F2E',
+          trackBg: '#3A4154'
         }
       }
     }

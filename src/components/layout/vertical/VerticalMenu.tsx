@@ -62,12 +62,15 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           <MenuItem href='/panel' icon={<i className='ri-layout-4-line' />}>
             Panel
           </MenuItem>
-          <SubMenu label='Información' icon={<i className='ri-bill-line' />}>
+          <SubMenu label='Información' icon={<i className='ri-database-2-line' />}>
             <MenuItem href='/panel/contactos'>Contactos</MenuItem>
             <MenuItem href='/panel/empresas'>Empresas</MenuItem>
+            <MenuItem href='/panel/productos-y-Serivicios'>Productos y Servicios</MenuItem>
+            <MenuItem href='/panel/clasificaciones'>Clasificaciones</MenuItem>
             <MenuItem href='/panel/diccionarios'>Diccionarios</MenuItem>
           </SubMenu>
         </MenuSection>
+
         <MenuSection label='Comunicación'>
           <MenuItem href='/panel/chat' icon={<i className='ri-wechat-line' />}>
             Chat
@@ -81,12 +84,9 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           <MenuItem href='/panel/kanban' icon={<i className='ri-user-settings-line' />}>
             Kanban
           </MenuItem>
-          {/* <SubMenu label='Comunicación' icon={<i className='ri-file-copy-line' />}></SubMenu> */}
         </MenuSection>
+
         <MenuSection label='Operaciones'>
-          {/* <MenuItem href='/panel/account-settings' icon={<i className='ri-user-settings-line' />}>
-            Account Settings
-          </MenuItem> */}
           <MenuItem href='/panel/cotizaciones' icon={<i className='ri-file-list-line' />}>
             Cotizaciones
           </MenuItem>
@@ -99,28 +99,11 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           <MenuItem href='/panel/cotizacion' icon={<i className='ri-file-text-line' />}>
             Facturación
           </MenuItem>
-          <SubMenu label='Metodos de pago' icon={<i className='ri-bill-line' />}>
-            <MenuItem href='/panel/contactos'>OpenPay</MenuItem>
-            <MenuItem href='/panel/empresas'>Mercado Pago</MenuItem>
+          <SubMenu label='Métodos de Pago' icon={<i className='ri-bill-line' />}>
+            <MenuItem href='/panel/openpay'>OpenPay</MenuItem>
+            <MenuItem href='/panel/mercadopago'>Mercado Pago</MenuItem>
           </SubMenu>
-          {/* <SubMenu label='Auth Pages' icon={<i className='ri-shield-keyhole-line' />}>
-            <MenuItem href='/login' target='_blank'>
-              Login
-            </MenuItem>
-            <MenuItem href='/register' target='_blank'>
-              Register
-            </MenuItem>
-            <MenuItem href='/forgot-password' target='_blank'>
-              Forgot Password
-            </MenuItem>
-          </SubMenu> */}
-          {/* <MenuItem href='/panel/card-basic' icon={<i className='ri-bar-chart-box-line' />}>
-            Cards
-          </MenuItem> */}
         </MenuSection>
-        {/* <MenuItem href='/panel/form-layouts' icon={<i className='ri-layout-4-line' />}>
-            Form Layouts
-          </MenuItem> */}
       </Menu>
     </ScrollWrapper>
   )
@@ -135,15 +118,26 @@ export interface SearchItem {
 
 export const flatMenuItems: SearchItem[] = [
   { label: 'Panel', href: '/panel', type: 'menu' },
-  { label: 'Contactos', href: '/panel/contactos', type: 'submenu', parent: 'Información' },
-  { label: 'Empresas', href: '/panel/empresas', type: 'submenu', parent: 'Información' },
-  { label: 'Diccionarios', href: '/panel/diccionarios', type: 'submenu', parent: 'Información' },
+  { label: 'Contactos', href: '/panel/contactos', type: 'submenu', parent: 'Gestión de Datos' },
+  { label: 'Empresas', href: '/panel/empresas', type: 'submenu', parent: 'Gestión de Datos' },
+  {
+    label: 'Productos y Servicios',
+    href: '/panel/productos-y-Serivicios',
+    type: 'submenu',
+    parent: 'Gestión de Datos'
+  },
+  { label: 'Clasificaciones', href: '/panel/clasificaciones', type: 'submenu', parent: 'Gestión de Datos' },
+  { label: 'Diccionarios', href: '/panel/diccionarios', type: 'submenu', parent: 'Gestión de Datos' },
   { label: 'Chat', href: '/panel/chat', type: 'menu' },
   { label: 'Agenda', href: '/panel/agenda', type: 'menu' },
   { label: 'Email', href: '/panel/email', type: 'menu' },
   { label: 'Kanban', href: '/panel/kanban', type: 'menu' },
-  { label: 'Account Settings', href: '/panel/account-settings', type: 'menu' },
-  { label: 'Cotisación', href: '/panel/cotizacion', type: 'menu' }
+  { label: 'Cotizaciones', href: '/panel/cotizaciones', type: 'menu' },
+  { label: 'Pedidos', href: '/panel/cotizacion', type: 'menu' },
+  { label: 'Ventas', href: '/panel/cotizacion', type: 'menu' },
+  { label: 'Facturación', href: '/panel/cotizacion', type: 'menu' },
+  { label: 'OpenPay', href: '/panel/openpay', type: 'submenu', parent: 'Métodos de Pago' },
+  { label: 'Mercado Pago', href: '/panel/mercadopago', type: 'submenu', parent: 'Métodos de Pago' }
 ]
 
 export default VerticalMenu

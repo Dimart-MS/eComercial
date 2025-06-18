@@ -9,9 +9,9 @@ export type PrimaryColorConfig = {
 const primaryColorConfig: PrimaryColorConfig[] = [
   {
     name: 'primary-1',
-    light: '#A379FF',
-    main: '#8C57FF',
-    dark: '#7E4EE6'
+    light: '#3385C5',
+    main: '#0066B5',
+    dark: '#004B8C'
   }
 ]
 

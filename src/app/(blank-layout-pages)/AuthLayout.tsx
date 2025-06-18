@@ -16,7 +16,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   }, [auth?.isLoading, auth?.token, router])
 
   if (auth?.isLoading) return null
-  if (auth?.token) return null
 
   return <>{children}</>
 }

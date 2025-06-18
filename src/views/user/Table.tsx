@@ -1,112 +1,133 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 
-// MUI Imports
-import Typography from '@mui/material/Typography'
-import Card from '@mui/material/Card'
-import Chip from '@mui/material/Chip'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
-import Paper from '@mui/material/Paper'
+import { useRouter } from 'next/navigation'
 
-// Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
+import {
+  Typography,
+  Card,
+  Chip,
+  Button,
+  TextField,
+  Paper,
+  Popper,
+  Fade,
+  Box,
+  Divider,
+  Avatar,
+  CircularProgress
+} from '@mui/material'
 
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 
-// Tipos y datos de ejemplo
+// Opciones de tipo de usuario
+export const TYPE_OPTIONS = ['Empresa', 'Acredor', 'Proveedor', 'Cliente', 'Prospecto']
+
+/**
+ * Opciones de estado de usuario.
+ */
+export const STATUS_OPTIONS = ['activo', 'inactivo']
+
+// Tipo local para los usuarios
 type TableBodyRowType = {
+  id: string
   avatarSrc?: string
   name: string
   username: string
   email: string
   type: string
   status: string
-  href?: string // Para el link al hacer click
 }
 
-const TYPE_OPTIONS = ['Empresa', 'Acredor', 'Proveedor', 'Cliente', 'Prospecto']
-const STATUS_OPTIONS = ['activo', 'inactivo']
-
-const rowsData: TableBodyRowType[] = [
-  {
-    avatarSrc: '/images/avatars/1.png',
-    name: 'Jordan Stevenson',
-    username: '@amiccoo',
-    email: 'Jacinthe_Blick@hotmail.com',
-    type: 'Empresa',
-    status: 'inactivo',
-    href: 'https://ejemplo.com/jordan'
-  },
-  {
-    avatarSrc: '/images/avatars/2.png',
-    name: 'Richard Payne',
-    username: '@brossiter15',
-    email: 'Jaylon_Bartell3@gmail.com',
-    type: 'Acredor',
-    status: 'activo',
-    href: 'https://ejemplo.com/richard'
-  },
-  {
-    avatarSrc: '/images/avatars/3.png',
-    name: 'Jennifer Summers',
-    username: '@jsbemblinf',
-    email: 'Tristin_Johnson@gmail.com',
-    type: 'Proveedor',
-    status: 'activo',
-    href: 'https://ejemplo.com/jennifer'
-  },
-  {
-    avatarSrc: '/images/avatars/4.png',
-    name: 'Mr. Justin Richardson',
-    username: '@justin45',
-    email: 'Toney21@yahoo.com',
-    type: 'Cliente',
-    status: 'activo',
-    href: 'https://ejemplo.com/justin'
-  },
-  {
-    avatarSrc: '/images/avatars/5.png',
-    name: 'Nicholas Tanner',
-    username: '@tannernic',
-    email: 'Hunter_Kuhic68@hotmail.com',
-    type: 'Prospecto',
-    status: 'activo',
-    href: 'https://ejemplo.com/nicholas'
-  },
-  {
-    avatarSrc: '/images/avatars/6.png',
-    name: 'Crystal Mays',
-    username: '@crystal99',
-    email: 'Norene_Bins@yahoo.com',
-    type: 'Empresa',
-    status: 'inactivo',
-    href: 'https://ejemplo.com/crystal'
-  },
-  {
-    avatarSrc: '/images/avatars/7.png',
-    name: 'Mary Garcia',
-    username: '@marygarcia4',
-    email: 'Emmitt.Walker14@hotmail.com',
-    type: 'Cliente',
-    status: 'inactivo',
-    href: 'https://ejemplo.com/mary'
-  },
-  {
-    avatarSrc: '/images/avatars/8.png',
-    name: 'Megan Roberts',
-    username: '@megan78',
-    email: 'Patrick.Howe73@gmail.com',
-    type: 'Proveedor',
-    status: 'activo',
-    href: 'https://ejemplo.com/megan'
-  }
-]
+/**
+ * Card flotante que muestra información detallada del usuario al hacer hover.
+ */
+const UserHoverCard = ({
+  row,
+  open,
+  anchorEl
+}: {
+  row: TableBodyRowType
+  open: boolean
+  anchorEl: HTMLElement | null
+}) => (
+  <Popper
+    open={open}
+    anchorEl={anchorEl}
+    placement='right-start'
+    transition
+    modifiers={[
+      {
+        name: 'offset',
+        options: {
+          offset: [0, 10]
+        }
+      }
+    ]}
+    sx={{ zIndex: 1300 }}
+  >
+    {({ TransitionProps }) => (
+      <Fade {...TransitionProps} timeout={200}>
+        <Paper
+          elevation={3}
+          sx={{
+            width: 320,
+            p: 3,
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: '0px 5px 15px rgba(0,0,0,0.1)',
+            border: '1px solid',
+            borderColor: 'divider'
+          }}
+        >
+          <Box display='flex' alignItems='center' mb={2}>
+            <Avatar src={row.avatarSrc} sx={{ width: 64, height: 64, mr: 2 }} />
+            <Box>
+              <Typography variant='h6' fontWeight={600}>
+                {row.name}
+              </Typography>
+              <Typography variant='body2' color='text.secondary'>
+                {row.username}
+              </Typography>
+            </Box>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Box mb={2}>
+            <Typography variant='body2' mb={1}>
+              <strong>Email:</strong> {row.email}
+            </Typography>
+            <Typography variant='body2' mb={1}>
+              <strong>Tipo:</strong> {row.type}
+            </Typography>
+            <Box display='flex' alignItems='center'>
+              <strong style={{ marginRight: 8 }}>Estado:</strong>
+              <Chip
+                label={row.status}
+                size='small'
+                color={row.status === 'activo' ? 'success' : 'error'}
+                sx={{ textTransform: 'capitalize' }}
+              />
+            </Box>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Box>
+            <Typography variant='body2'>
+              <strong>Información adicional:</strong>
+            </Typography>
+            <Typography variant='body2' color='text.secondary'>
+              Experto en finanzas con más de 10 años de experiencia en el sector.
+            </Typography>
+          </Box>
+        </Paper>
+      </Fade>
+    )}
+  </Popper>
+)
 
 const Table = () => {
+  const router = useRouter()
+
   // Estados para filtros y búsqueda
   const [globalSearch, setGlobalSearch] = useState('')
   const [nameFilter, setNameFilter] = useState('')
@@ -114,17 +135,46 @@ const Table = () => {
   const [typeFilter, setTypeFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  // Filtrado de datos
+  // Estado para los usuarios cargados desde el JSON
+  const [rowsData, setRowsData] = useState<TableBodyRowType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Estado para el usuario actualmente en hover y el elemento ancla para el Popper
+  const [hoveredUserId, setHoveredUserId] = useState<string | null>(null)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const hoverTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Cargar datos desde user.json
+  useEffect(() => {
+    setLoading(true)
+    fetch('/user.json')
+      .then(res => {
+        if (!res.ok) throw new Error('No se pudo cargar user.json')
+
+        return res.json()
+      })
+      .then(data => {
+        setRowsData(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        setError(err.message)
+        setLoading(false)
+      })
+  }, [])
+
+  /**
+   * Filtra los usuarios según los filtros y búsqueda.
+   */
   const filteredRows = useMemo(() => {
     return rowsData.filter(row => {
-      // Búsqueda global
       const matchesGlobal =
         !globalSearch ||
         row.name.toLowerCase().includes(globalSearch.toLowerCase()) ||
         row.username.toLowerCase().includes(globalSearch.toLowerCase()) ||
         row.email.toLowerCase().includes(globalSearch.toLowerCase())
 
-      // Filtros individuales
       const matchesName =
         !nameFilter ||
         row.name.toLowerCase().includes(nameFilter.toLowerCase()) ||
@@ -136,51 +186,64 @@ const Table = () => {
 
       return matchesGlobal && matchesName && matchesEmail && matchesType && matchesStatus
     })
-  }, [globalSearch, nameFilter, emailFilter, typeFilter, statusFilter])
+  }, [rowsData, globalSearch, nameFilter, emailFilter, typeFilter, statusFilter])
 
-  // Tooltip content
-  const UserTooltipContent = ({ row }: { row: TableBodyRowType }) => (
-    <Paper
-      elevation={3}
-      sx={{
-        p: 1.2,
-        minWidth: 180,
-        maxWidth: 260,
-        background: '#fff',
-        fontSize: 13,
-        boxShadow: 3,
-        borderRadius: 2,
-        wordBreak: 'break-word'
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-        <CustomAvatar src={row.avatarSrc} size={32} />
-        <div>
-          <div style={{ fontWeight: 600 }}>{row.name}</div>
-          <div style={{ color: '#888', fontSize: 12 }}>{row.username}</div>
-        </div>
-      </div>
-      <div style={{ fontSize: 13, marginBottom: 2 }}>
-        <span style={{ fontWeight: 500 }}>Email:</span> {row.email}
-      </div>
-      <div style={{ fontSize: 13, marginBottom: 2 }}>
-        <span style={{ fontWeight: 500 }}>Tipo:</span> {row.type}
-      </div>
-      <div style={{ fontSize: 13 }}>
-        <span style={{ fontWeight: 500 }}>Estado:</span>{' '}
-        <Chip
-          label={row.status}
-          size='small'
-          color={row.status === 'activo' ? 'success' : row.status === 'inactivo' ? 'secondary' : 'default'}
-          sx={{ height: 20, fontSize: 12, textTransform: 'capitalize' }}
-        />
-      </div>
-    </Paper>
-  )
+  /**
+   * Maneja el hover sobre la celda de usuario.
+   * Muestra el card flotante y lo oculta con retardo al salir.
+   */
+  const handleUserHover = (userId: string | null, event?: React.MouseEvent<HTMLElement>) => {
+    if (hoverTimer.current) {
+      clearTimeout(hoverTimer.current)
+    }
 
+    if (userId === null) {
+      hoverTimer.current = setTimeout(() => {
+        setHoveredUserId(null)
+        setAnchorEl(null)
+      }, 200)
+    } else {
+      setHoveredUserId(userId)
+      setAnchorEl(event?.currentTarget || null)
+    }
+  }
+
+  /**
+   * Abre la página de edición del usuario solo si se hace click en la celda del usuario.
+   */
+  const handleUserCellClick = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/view/user/CardUser?id=${id}`)
+  }
+
+  if (loading) {
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center' sx={{ p: 4, minHeight: 300 }}>
+        <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Cargando contactos...</Typography>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box
+        display='flex'
+        justifyContent='center'
+        alignItems='center'
+        sx={{ p: 4, color: 'error.main', minHeight: 300 }}
+      >
+        <Typography variant='h6'>Error: {error}</Typography>
+      </Box>
+    )
+  }
+
+  // =======================
+  // Renderizado principal
+  // =======================
   return (
     <Card>
-      {/* Barra superior con botones y buscador global */}
+      {/* Barra superior con acciones y búsqueda */}
       <div className='flex flex-col md:flex-row items-center justify-between gap-2 p-4 border-b'>
         <div className='flex gap-2'>
           <Button
@@ -221,10 +284,11 @@ const Table = () => {
           </Button>
         </div>
       </div>
+      {/* Tabla de usuarios */}
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
-            {/* Fila de filtros con altura fija */}
+            {/* Fila de filtros */}
             <tr style={{ height: 32 }}>
               <th style={{ padding: '2px 4px' }}>
                 <TextField
@@ -282,20 +346,19 @@ const Table = () => {
                   ))}
                 </TextField>
               </th>
-              {/* Columna vacía para acción eliminar */}
               <th style={{ width: 44, padding: 0 }}></th>
             </tr>
-            {/* Fila de títulos con altura fija */}
+            {/* Fila de encabezados */}
             <tr style={{ height: 32 }}>
               <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Usuario</th>
               <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Email</th>
               <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Tipo</th>
               <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Status</th>
-              {/* Encabezado vacío para acción eliminar */}
               <th style={{ width: 44, padding: 0 }}></th>
             </tr>
           </thead>
           <tbody>
+            {/* Mensaje si no hay usuarios */}
             {filteredRows.length === 0 && (
               <tr>
                 <td colSpan={5} className='text-center py-4 text-gray-400'>
@@ -303,112 +366,79 @@ const Table = () => {
                 </td>
               </tr>
             )}
-            {filteredRows.map((row, index) => (
-              <Tooltip
-                key={index}
-                title={<UserTooltipContent row={row} />}
-                arrow
-                placement='top'
-                enterDelay={200}
-                leaveDelay={100}
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      p: 0,
-                      bgcolor: 'transparent'
-                    }
-                  }
-                }}
-              >
-                <tr
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    if (row.href) window.open(row.href, '_blank')
-                  }}
-                  tabIndex={0}
+            {/* Render de filas de usuario */}
+            {filteredRows.map(row => (
+              <tr key={row.id}>
+                {/* Celda de usuario con hover y click */}
+                <td
+                  onMouseEnter={e => handleUserHover(row.id, e)}
+                  onMouseLeave={() => handleUserHover(null)}
+                  onClick={e => handleUserCellClick(row.id, e)}
+                  style={{ userSelect: 'none', cursor: 'pointer' }}
                 >
-                  <td>
-                    <Tooltip
-                      title={<UserTooltipContent row={row} />}
-                      arrow
-                      placement='right'
-                      enterDelay={200}
-                      leaveDelay={100}
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            p: 0,
-                            bgcolor: 'transparent'
-                          }
-                        }
-                      }}
-                    >
-                      <span
-                        style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                        onClick={e => {
-                          e.stopPropagation()
-                          if (row.href) window.open(row.href, '_blank')
-                        }}
-                      >
-                        <CustomAvatar src={row.avatarSrc} size={28} />
-                        <div className='flex flex-col'>
-                          <Typography color='text.primary' className='font-medium' style={{ fontSize: 13 }}>
-                            {row.name}
-                          </Typography>
-                          <Typography variant='body2' style={{ fontSize: 12 }}>
-                            {row.username}
-                          </Typography>
-                        </div>
-                      </span>
-                    </Tooltip>
-                  </td>
-                  <td>
-                    <Typography style={{ fontSize: 13 }}>{row.email}</Typography>
-                  </td>
-                  <td>
-                    <Typography color='text.primary' style={{ fontSize: 13 }}>
-                      {row.type}
-                    </Typography>
-                  </td>
-                  <td>
-                    <Chip
-                      className='capitalize'
-                      variant='tonal'
-                      color={row.status === 'activo' ? 'success' : row.status === 'inactivo' ? 'secondary' : 'default'}
-                      label={row.status}
-                      size='small'
-                    />
-                  </td>
-                  {/* Columna de acción eliminar */}
-                  <td style={{ textAlign: 'center', width: 30, padding: 0 }}>
-                    <button
-                      type='button'
-                      title='Eliminar'
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        padding: 4,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 36,
-                        height: 36
-                      }}
-                      onClick={e => {
-                        e.stopPropagation()
-                        alert(`Eliminar usuario: ${row.name}`)
-                      }}
-                    >
-                      <i className='ri-delete-bin-7-line text-textSecondary' style={{ fontSize: 20 }} />
-                    </button>
-                  </td>
-                </tr>
-              </Tooltip>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Avatar src={row.avatarSrc} sx={{ width: 32, height: 32 }} />
+                    <div className='flex flex-col'>
+                      <Typography color='text.primary' fontWeight={500} fontSize={13}>
+                        {row.name}
+                      </Typography>
+                      <Typography variant='body2' fontSize={12} color='text.secondary'>
+                        {row.username}
+                      </Typography>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <Typography style={{ fontSize: 13 }}>{row.email}</Typography>
+                </td>
+                <td>
+                  <Typography color='text.primary' style={{ fontSize: 13 }}>
+                    {row.type}
+                  </Typography>
+                </td>
+                <td>
+                  <Chip
+                    className='capitalize'
+                    variant='tonal'
+                    color={row.status === 'activo' ? 'success' : 'error'}
+                    label={row.status}
+                    size='small'
+                  />
+                </td>
+                {/* Botón eliminar */}
+                <td style={{ textAlign: 'center', width: 30, padding: 0 }}>
+                  <button
+                    type='button'
+                    title='Eliminar'
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 36,
+                      height: 36
+                    }}
+                    onClick={e => {
+                      e.stopPropagation()
+                      alert(`Eliminar usuario: ${row.name}`)
+                    }}
+                  >
+                    <i className='ri-delete-bin-7-line text-textSecondary' style={{ fontSize: 20 }} />
+                  </button>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Renderiza el hover card correspondiente según el usuario */}
+      {filteredRows.map(row => (
+        <UserHoverCard key={row.id} row={row} open={hoveredUserId === row.id} anchorEl={anchorEl} />
+      ))}
     </Card>
   )
 }

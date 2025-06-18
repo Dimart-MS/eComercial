@@ -40,8 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN)
     localStorage.removeItem(LOCAL_STORAGE_KEYS.USER)
     localStorage.setItem(LOCAL_STORAGE_KEYS.LOGOUT_EVENT, Date.now().toString())
-    router.push(ROUTES.LOGIN)
-  }, [router])
+    setTimeout(() => {
+      window.location.href = '/login'
+    }, 100)
+  }, [])
 
   /**
    * Efecto para cargar el estado de autenticación al montar el componente

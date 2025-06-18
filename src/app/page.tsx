@@ -1,18 +1,14 @@
-import Login from '@views/Login'
-import { getServerMode } from '@core/utils/serverHelpers'
-import AuthLayout from './(blank-layout-pages)/AuthLayout'
-import BlankLayout from '@/@layouts/BlankLayout'
+'use client'
+import { useEffect } from 'react'
 
-const LoginPage = () => {
-  const mode = getServerMode()
+import { useRouter } from 'next/navigation'
 
-  return (
-    <AuthLayout>
-      <BlankLayout>
-        <Login mode={mode} />
-      </BlankLayout>
-    </AuthLayout>
-  )
+export default function Home() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/login')
+  }, [router])
+
+  return null
 }
-
-export default LoginPage
