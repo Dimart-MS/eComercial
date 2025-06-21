@@ -19,7 +19,6 @@ root.render(
   <React.StrictMode>
     <HashRouter>
       <AuthProvider>
-        {/* Render the main App component */}
         <App />
       </AuthProvider>
     </HashRouter>

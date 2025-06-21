@@ -20,24 +20,58 @@ import {
 } from '@mui/material'
 
 import tableStyles from '@core/styles/table.module.css'
+import { useUserNavigation } from '@/hooks/useUserNavigation'
 
 // Opciones de tipo de usuario
-export const TYPE_OPTIONS = ['Empresa', 'Acredor', 'Proveedor', 'Cliente', 'Prospecto']
+export const TYPE_OPTIONS = ['Prospecto', 'Cliente', 'Proveedor', 'Acreedor', 'Colaborador']
 
 /**
  * Opciones de estado de usuario.
  */
 export const STATUS_OPTIONS = ['activo', 'inactivo']
 
-// Tipo local para los usuarios
+// Tipo para los usuarios
 type TableBodyRowType = {
   id: string
   avatarSrc?: string
   name: string
-  username: string
+  lastName?: string
+  username?: string
   email: string
-  type: string
-  status: string
+  contacts?: {
+    alias?: string
+    phones?: Array<{
+      region: string
+      number: string
+      type: string
+    }>
+    emails?: Array<{
+      address: string
+      type: string
+    }>
+  }
+  companies?: Array<{
+    name: string
+    position?: string
+  }>
+  category?: string
+  status: 'activo' | 'inactivo'
+  profile?: {
+    decisionInfluence?: string
+    activities?: string
+    opportunityAreas?: string
+    recommendations?: string
+    notes?: string
+  }
+}
+
+// Tipos para el ordenamiento
+type SortDirection = 'asc' | 'desc' | null
+type SortColumn = 'name' | 'lastName' | 'email' | 'phone' | 'company'
+
+type SortConfig = {
+  column: SortColumn | null
+  direction: SortDirection
 }
 
 /**
@@ -88,7 +122,7 @@ const UserHoverCard = ({
                 {row.name}
               </Typography>
               <Typography variant='body2' color='text.secondary'>
-                {row.username}
+                {row.contacts?.alias || row.username || ''}
               </Typography>
             </Box>
           </Box>
@@ -98,7 +132,7 @@ const UserHoverCard = ({
               <strong>Email:</strong> {row.email}
             </Typography>
             <Typography variant='body2' mb={1}>
-              <strong>Tipo:</strong> {row.type}
+              <strong>Categoría:</strong> {row.category || 'N/D'}
             </Typography>
             <Box display='flex' alignItems='center'>
               <strong style={{ marginRight: 8 }}>Estado:</strong>
@@ -116,7 +150,7 @@ const UserHoverCard = ({
               <strong>Información adicional:</strong>
             </Typography>
             <Typography variant='body2' color='text.secondary'>
-              Experto en finanzas con más de 10 años de experiencia en el sector.
+              {row.profile?.notes || 'Sin notas adicionales.'}
             </Typography>
           </Box>
         </Paper>
@@ -126,14 +160,15 @@ const UserHoverCard = ({
 )
 
 const Table = () => {
-  const router = useRouter()
+  const { navigateToContactDetail } = useUserNavigation()
 
   // Estados para filtros y búsqueda
   const [globalSearch, setGlobalSearch] = useState('')
-  const [nameFilter, setNameFilter] = useState('')
-  const [emailFilter, setEmailFilter] = useState('')
+  const [nameFilter] = useState('')
+  const [emailFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter] = useState('')
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ column: null, direction: null })
 
   // Estado para los usuarios cargados desde el JSON
   const [rowsData, setRowsData] = useState<TableBodyRowType[]>([])
@@ -155,7 +190,22 @@ const Table = () => {
         return res.json()
       })
       .then(data => {
-        setRowsData(data)
+        // Transformar los datos para que coincidan con el tipo esperado
+        const transformedData: TableBodyRowType[] = data.map((user: any) => ({
+          id: user.id,
+          avatarSrc: user.avatarSrc,
+          name: user.name,
+          lastName: user.lastName,
+          username: user.contacts?.alias || '',
+          email: user.contacts?.emails?.[0]?.address || '',
+          contacts: user.contacts,
+          companies: user.companies,
+          category: user.category,
+          status: user.disabled === false ? 'activo' : 'inactivo',
+          profile: user.profile
+        }))
+
+        setRowsData(transformedData)
         setLoading(false)
       })
       .catch(err => {
@@ -164,29 +214,102 @@ const Table = () => {
       })
   }, [])
 
-  /**
-   * Filtra los usuarios según los filtros y búsqueda.
-   */
-  const filteredRows = useMemo(() => {
-    return rowsData.filter(row => {
+  const filteredAndSortedRows = useMemo(() => {
+    const result = rowsData.filter(row => {
       const matchesGlobal =
         !globalSearch ||
         row.name.toLowerCase().includes(globalSearch.toLowerCase()) ||
-        row.username.toLowerCase().includes(globalSearch.toLowerCase()) ||
+        (row.lastName || '').toLowerCase().includes(globalSearch.toLowerCase()) ||
         row.email.toLowerCase().includes(globalSearch.toLowerCase())
 
       const matchesName =
         !nameFilter ||
         row.name.toLowerCase().includes(nameFilter.toLowerCase()) ||
-        row.username.toLowerCase().includes(nameFilter.toLowerCase())
+        (row.lastName || '').toLowerCase().includes(nameFilter.toLowerCase())
 
       const matchesEmail = !emailFilter || row.email.toLowerCase().includes(emailFilter.toLowerCase())
-      const matchesType = !typeFilter || row.type === typeFilter
+      const matchesType = !typeFilter || row.category === typeFilter
       const matchesStatus = !statusFilter || row.status === statusFilter
 
       return matchesGlobal && matchesName && matchesEmail && matchesType && matchesStatus
     })
-  }, [rowsData, globalSearch, nameFilter, emailFilter, typeFilter, statusFilter])
+
+    // Aplicar ordenamiento
+    if (sortConfig.column && sortConfig.direction) {
+      result.sort((a, b) => {
+        let valA: any
+        let valB: any
+
+        switch (sortConfig.column) {
+          case 'name':
+            valA = a.name.toLowerCase()
+            valB = b.name.toLowerCase()
+            break
+          case 'lastName':
+            valA = (a.lastName || '').toLowerCase()
+            valB = (b.lastName || '').toLowerCase()
+            break
+          case 'email':
+            valA = a.email.toLowerCase()
+            valB = b.email.toLowerCase()
+            break
+          case 'phone':
+            const phoneA = a.contacts?.phones?.[0]
+            const phoneB = b.contacts?.phones?.[0]
+
+            valA = phoneA ? `${phoneA.region}${phoneA.number}`.toLowerCase() : ''
+            valB = phoneB ? `${phoneB.region}${phoneB.number}`.toLowerCase() : ''
+            break
+          case 'company':
+            const companyA = a.companies?.[0]
+            const companyB = b.companies?.[0]
+
+            valA = companyA ? companyA.name.toLowerCase() : ''
+            valB = companyB ? companyB.name.toLowerCase() : ''
+            break
+          default:
+            return 0
+        }
+
+        if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1
+        if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1
+
+        return 0
+      })
+    }
+
+    return result
+  }, [rowsData, globalSearch, nameFilter, emailFilter, typeFilter, statusFilter, sortConfig])
+
+  // Manejador para el ordenamiento
+  const handleSort = (column: SortColumn) => {
+    setSortConfig(prev => {
+      if (prev.column === column) {
+        if (prev.direction === 'asc') {
+          return { column, direction: 'desc' }
+        } else if (prev.direction === 'desc') {
+          return { column: null, direction: null }
+        }
+      }
+
+      return { column, direction: 'asc' }
+    })
+  }
+
+  // Función para renderizar el icono de ordenamiento
+  const iconBaseClass = 'text-lg align-middle'
+
+  const renderSortIcon = (column: SortColumn) => {
+    if (sortConfig.column !== column) {
+      return <i className={`${iconBaseClass} ri-expand-up-down-line text-gray-400`} />
+    }
+
+    if (sortConfig.direction === 'asc') {
+      return <i className={`${iconBaseClass} ri-arrow-up-s-line text-primary`} />
+    }
+
+    return <i className={`${iconBaseClass} ri-arrow-down-s-line text-primary`} />
+  }
 
   /**
    * Maneja el hover sobre la celda de usuario.
@@ -206,14 +329,6 @@ const Table = () => {
       setHoveredUserId(userId)
       setAnchorEl(event?.currentTarget || null)
     }
-  }
-
-  /**
-   * Abre la página de edición del usuario solo si se hace click en la celda del usuario.
-   */
-  const handleUserCellClick = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/view/user/CardUser?id=${id}`)
   }
 
   if (loading) {
@@ -242,204 +357,212 @@ const Table = () => {
   // Renderizado principal
   // =======================
   return (
-    <Card>
-      {/* Barra superior con acciones y búsqueda */}
-      <div className='flex flex-col md:flex-row items-center justify-between gap-2 p-4 border-b'>
-        <div className='flex gap-2'>
-          <Button
-            variant='contained'
-            color='primary'
-            size='small'
-            startIcon={<i className='ri-upload-2-line' />}
-            onClick={() => alert('Importar')}
-          >
-            Importar
-          </Button>
-          <Button
-            variant='outlined'
-            color='primary'
-            size='small'
-            startIcon={<i className='ri-download-2-line' />}
-            onClick={() => alert('Exportar')}
-          >
-            Exportar
-          </Button>
-        </div>
-        <div className='flex w-full md:w-auto gap-2 items-center'>
-          <TextField
-            size='small'
-            placeholder='Buscar usuario'
-            value={globalSearch}
-            onChange={e => setGlobalSearch(e.target.value)}
-            className='w-full md:w-64'
-          />
-          <Button
-            variant='contained'
-            color='primary'
-            size='small'
-            onClick={() => alert('Nuevo usuario')}
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            Nuevo usuario
-          </Button>
-        </div>
-      </div>
-      {/* Tabla de usuarios */}
-      <div className='overflow-x-auto'>
-        <table className={tableStyles.table}>
-          <thead>
-            {/* Fila de filtros */}
-            <tr style={{ height: 32 }}>
-              <th style={{ padding: '2px 4px' }}>
-                <TextField
-                  size='small'
-                  margin='dense'
-                  placeholder='Filtrar usuario'
-                  value={nameFilter}
-                  onChange={e => setNameFilter(e.target.value)}
-                  inputProps={{ style: { width: 120, height: 22, fontSize: 13 } }}
-                />
-              </th>
-              <th style={{ padding: '2px 4px' }}>
-                <TextField
-                  size='small'
-                  margin='dense'
-                  placeholder='Filtrar email'
-                  value={emailFilter}
-                  onChange={e => setEmailFilter(e.target.value)}
-                  inputProps={{ style: { width: 120, height: 22, fontSize: 13 } }}
-                />
-              </th>
-              <th style={{ padding: '2px 4px' }}>
-                <TextField
-                  size='small'
-                  margin='dense'
-                  select
-                  SelectProps={{ native: true }}
-                  value={typeFilter}
-                  onChange={e => setTypeFilter(e.target.value)}
-                  inputProps={{ style: { width: 90, height: 22, fontSize: 13 } }}
-                >
-                  <option value=''>Todos</option>
-                  {TYPE_OPTIONS.map(type => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </TextField>
-              </th>
-              <th style={{ padding: '2px 4px' }}>
-                <TextField
-                  size='small'
-                  margin='dense'
-                  select
-                  SelectProps={{ native: true }}
-                  value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
-                  inputProps={{ style: { width: 90, height: 22, fontSize: 13 } }}
-                >
-                  <option value=''>Todos</option>
-                  {STATUS_OPTIONS.map(status => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </TextField>
-              </th>
-              <th style={{ width: 44, padding: 0 }}></th>
-            </tr>
-            {/* Fila de encabezados */}
-            <tr style={{ height: 32 }}>
-              <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Usuario</th>
-              <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Email</th>
-              <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Tipo</th>
-              <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>Status</th>
-              <th style={{ width: 44, padding: 0 }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Mensaje si no hay usuarios */}
-            {filteredRows.length === 0 && (
-              <tr>
-                <td colSpan={5} className='text-center py-4 text-gray-400'>
-                  No hay usuarios que coincidan.
-                </td>
-              </tr>
-            )}
-            {/* Render de filas de usuario */}
-            {filteredRows.map(row => (
-              <tr key={row.id}>
-                {/* Celda de usuario con hover y click */}
-                <td
-                  onMouseEnter={e => handleUserHover(row.id, e)}
-                  onMouseLeave={() => handleUserHover(null)}
-                  onClick={e => handleUserCellClick(row.id, e)}
-                  style={{ userSelect: 'none', cursor: 'pointer' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Avatar src={row.avatarSrc} sx={{ width: 32, height: 32 }} />
-                    <div className='flex flex-col'>
-                      <Typography color='text.primary' fontWeight={500} fontSize={13}>
-                        {row.name}
-                      </Typography>
-                      <Typography variant='body2' fontSize={12} color='text.secondary'>
-                        {row.username}
-                      </Typography>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <Typography style={{ fontSize: 13 }}>{row.email}</Typography>
-                </td>
-                <td>
-                  <Typography color='text.primary' style={{ fontSize: 13 }}>
-                    {row.type}
-                  </Typography>
-                </td>
-                <td>
-                  <Chip
-                    className='capitalize'
-                    variant='tonal'
-                    color={row.status === 'activo' ? 'success' : 'error'}
-                    label={row.status}
-                    size='small'
-                  />
-                </td>
-                {/* Botón eliminar */}
-                <td style={{ textAlign: 'center', width: 30, padding: 0 }}>
-                  <button
-                    type='button'
-                    title='Eliminar'
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: 4,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: 36,
-                      height: 36
-                    }}
-                    onClick={e => {
-                      e.stopPropagation()
-                      alert(`Eliminar usuario: ${row.name}`)
-                    }}
-                  >
-                    <i className='ri-delete-bin-7-line text-textSecondary' style={{ fontSize: 20 }} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <>
+      {/* Pestañas de tipo de usuario */}
+      <div className='flex border-b border-divider'>
+        <button
+          key='todos'
+          type='button'
+          onClick={() => setTypeFilter('')}
+          className={`mui-tab
+          px-6 py-3 text-sm font-medium rounded-t-lg shadow-sm 
+          ${typeFilter === '' ? 'active' : ''}`}
+          aria-current={typeFilter === '' ? 'page' : undefined}
+        >
+          Todos
+        </button>
+        {TYPE_OPTIONS.map(type => {
+          const isActive = typeFilter === type
 
-      {/* Renderiza el hover card correspondiente según el usuario */}
-      {filteredRows.map(row => (
-        <UserHoverCard key={row.id} row={row} open={hoveredUserId === row.id} anchorEl={anchorEl} />
-      ))}
-    </Card>
+          return (
+            <button
+              key={type}
+              type='button'
+              onClick={() => setTypeFilter(type)}
+              className={`mui-tab
+                px-6 py-3 text-sm font-medium rounded-t-lg shadow-sm 
+                ${isActive ? 'active' : ''}`}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {type}
+            </button>
+          )
+        })}
+      </div>
+      <Card>
+        {/* Barra superior con acciones y búsqueda */}
+        <div className='flex flex-col md:flex-row items-center justify-between gap-2 p-4 border-b'>
+          <div className='flex gap-2'>
+            <Button
+              variant='contained'
+              color='primary'
+              size='small'
+              startIcon={<i className='ri-upload-2-line' />}
+              onClick={() => alert('Importar')}
+            >
+              Importar
+            </Button>
+            <Button
+              variant='outlined'
+              color='primary'
+              size='small'
+              startIcon={<i className='ri-download-2-line' />}
+              onClick={() => alert('Exportar')}
+            >
+              Exportar
+            </Button>
+          </div>
+          <div className='flex w-full md:w-auto gap-2 items-center'>
+            <TextField
+              size='small'
+              placeholder='Buscar usuario'
+              value={globalSearch}
+              onChange={e => setGlobalSearch(e.target.value)}
+              className='w-full md:w-64'
+            />
+            <Button
+              variant='contained'
+              color='primary'
+              size='small'
+              onClick={() => alert('Nuevo usuario')}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              Nuevo Contacto
+            </Button>
+          </div>
+        </div>
+        {/* Tabla de usuarios */}
+        <div className='overflow-x-auto'>
+          <table className={tableStyles.table}>
+            <thead>
+              {/* Fila de encabezados */}
+              <tr style={{ height: 32 }}>
+                <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>
+                  <div className='flex items-center gap-2 cursor-pointer' onClick={() => handleSort('name')}>
+                    Nombre
+                    {renderSortIcon('name')}
+                  </div>
+                </th>
+                <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>
+                  <div className='flex items-center gap-2 cursor-pointer' onClick={() => handleSort('lastName')}>
+                    Apellidos
+                    {renderSortIcon('lastName')}
+                  </div>
+                </th>
+                <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>
+                  <div className='flex items-center gap-2 cursor-pointer' onClick={() => handleSort('email')}>
+                    Correo
+                    {renderSortIcon('email')}
+                  </div>
+                </th>
+                <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>
+                  <div className='flex items-center gap-2 cursor-pointer' onClick={() => handleSort('phone')}>
+                    Teléfono
+                    {renderSortIcon('phone')}
+                  </div>
+                </th>
+                <th style={{ fontWeight: 600, fontSize: 14, padding: 6 }}>
+                  <div className='flex items-center gap-2 cursor-pointer' onClick={() => handleSort('company')}>
+                    Empresa
+                    {renderSortIcon('company')}
+                  </div>
+                </th>
+                <th style={{ width: 44, padding: 0 }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Mensaje si no hay usuarios */}
+              {filteredAndSortedRows.length === 0 && (
+                <tr>
+                  <td colSpan={6} className='text-center py-4 text-gray-400'>
+                    No hay usuarios que coincidan.
+                  </td>
+                </tr>
+              )}
+              {/* Render de filas de usuario */}
+              {filteredAndSortedRows.map(row => {
+                const phone = row.contacts?.phones?.[0]
+                  ? `${row.contacts.phones[0].region} ${row.contacts.phones[0].number}`
+                  : 'N/D'
+
+                const company = row.companies?.[0]?.name || 'N/D'
+
+                return (
+                  <tr
+                    key={row.id}
+                    className='hover:bg-[var(--mui-palette-action-hover)] transition-colors duration-150'
+                    onMouseLeave={() => handleUserHover(null)}
+                  >
+                    {/* Celda de usuario con hover y click */}
+                    <td
+                      style={{ userSelect: 'none', cursor: 'pointer' }}
+                      onMouseEnter={e => handleUserHover(row.id, e)}
+                      onMouseLeave={() => handleUserHover(null)}
+                      onClick={e => {
+                        e.stopPropagation()
+                        navigateToContactDetail(row.id)
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Avatar src={row.avatarSrc} sx={{ width: 32, height: 32 }} />
+                        <div className='flex flex-col'>
+                          <Typography color='text.primary' fontWeight={500} fontSize={13}>
+                            {row.name}
+                          </Typography>
+                          <Typography variant='body2' fontSize={12} color='text.secondary'>
+                            {row.contacts?.alias || row.username || ''}
+                          </Typography>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <Typography style={{ fontSize: 13 }}>{row.lastName || 'N/D'}</Typography>
+                    </td>
+                    <td>
+                      <Typography style={{ fontSize: 13 }}>{row.email}</Typography>
+                    </td>
+                    <td>
+                      <Typography style={{ fontSize: 13 }}>{phone}</Typography>
+                    </td>
+                    <td>
+                      <Typography style={{ fontSize: 13 }}>{company}</Typography>
+                    </td>
+                    {/* Botón eliminar */}
+                    <td style={{ textAlign: 'center', width: 30, padding: 0 }}>
+                      <button
+                        type='button'
+                        title='Eliminar'
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 4,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 36,
+                          height: 36
+                        }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          alert(`Eliminar usuario: ${row.name}`)
+                        }}
+                      >
+                        <i className='ri-delete-bin-7-line text-textSecondary' style={{ fontSize: 20 }} />
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        {/* Renderiza el hover card correspondiente según el usuario */}
+        {filteredAndSortedRows.map(row => (
+          <UserHoverCard key={row.id} row={row} open={hoveredUserId === row.id} anchorEl={anchorEl} />
+        ))}
+      </Card>
+    </>
   )
 }
 

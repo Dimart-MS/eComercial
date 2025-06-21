@@ -1,44 +1,59 @@
-import { Card, CardMedia, CardContent, Avatar, Typography, Button, AvatarGroup } from '@mui/material'
+import { Card, CardContent, Avatar, Typography, Chip, Divider } from '@mui/material'
 
-import type { TableBodyRowType } from './usersData'
+import type { ChatUserType } from './infoDirect/ChatUser'
 
-type Props = {
-  user: TableBodyRowType
+interface CardUserProps {
+  user: ChatUserType
 }
 
-const CardUser = ({ user }: Props) => {
-  return (
-    <Card>
-      <CardMedia image='/images/cards/2.png' className='bs-[180px]' />
-      <CardContent className='relative'>
-        <Avatar
-          src={user.avatarSrc}
-          alt={user.name}
-          className='is-[78px] bs-[78px] border-[5px] border-backgroundPaper absolute start-[11px] block-start-[-39px]'
+const CardUser = ({ user }: CardUserProps) => (
+  <Card
+    className='shadow-lg'
+    sx={{
+      bgcolor: 'background.paper',
+      color: 'text.primary',
+      borderRadius: 3,
+      p: 0,
+      minWidth: 0
+    }}
+  >
+    <CardContent className='flex flex-col items-center gap-2 p-6'>
+      <Avatar
+        src={user.avatarSrc}
+        alt={user.name}
+        sx={{ width: 80, height: 80, mb: 2, border: '4px solid', borderColor: 'background.default' }}
+      />
+      <Typography variant='h6' fontWeight={600}>
+        {user.name} {user.lastName}
+      </Typography>
+      <Typography variant='body2' color='text.secondary'>
+        {user.companies?.[0]?.name || 'Sin empresa'}
+      </Typography>
+      <Chip
+        label={user.category || 'Sin categoría'}
+        color='primary'
+        size='small'
+        sx={{ mt: 1, textTransform: 'capitalize' }}
+      />
+      <Divider sx={{ my: 2, width: '100%' }} />
+      <Typography variant='body2' color='text.secondary'>
+        <strong>Email:</strong> {user.contacts?.emails?.[0]?.address || 'N/D'}
+      </Typography>
+      <Typography variant='body2' color='text.secondary'>
+        <strong>Teléfono:</strong>{' '}
+        {user.contacts?.phones?.[0] ? `${user.contacts.phones[0].region} ${user.contacts.phones[0].number}` : 'N/D'}
+      </Typography>
+      <Typography variant='body2' color='text.secondary'>
+        <strong>Estado:</strong>{' '}
+        <Chip
+          label={user.status}
+          size='small'
+          color={user.status === 'activo' ? 'success' : 'error'}
+          sx={{ textTransform: 'capitalize' }}
         />
-        <div className='flex justify-between items-center flex-wrap gap-x-4 gap-y-2 mbe-5 mbs-[30px]'>
-          <div className='flex flex-col items-start'>
-            <Typography variant='h5'>{user.name}</Typography>
-            <Typography variant='body2'>{user.email}</Typography>
-          </div>
-          <Button variant='contained'>Send Request</Button>
-        </div>
-        <div className='flex justify-between items-center flex-wrap gap-x-4 gap-y-2'>
-          <Typography variant='subtitle2' color='text.disabled'>
-            18 mutual friends
-          </Typography>
-          <AvatarGroup max={4}>
-            <Avatar src='/images/avatars/1.png' />
-            <Avatar src='/images/avatars/5.png' />
-            <Avatar src='/images/avatars/4.png' />
-            <Avatar src='/images/avatars/6.png' />
-            <Avatar src='/images/avatars/7.png' />
-            <Avatar src='/images/avatars/8.png' />
-          </AvatarGroup>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
+      </Typography>
+    </CardContent>
+  </Card>
+)
 
 export default CardUser

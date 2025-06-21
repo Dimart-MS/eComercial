@@ -50,7 +50,7 @@ const GuestRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 }
 
 // Componente principal
-const App: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const App: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname() || ''
   const auth = useContext(AuthContext)
 

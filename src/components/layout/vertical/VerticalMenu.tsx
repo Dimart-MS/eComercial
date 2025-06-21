@@ -1,5 +1,4 @@
 // MUI Imports
-import Chip from '@mui/material/Chip'
 import { useTheme } from '@mui/material/styles'
 
 // Third-party Imports
@@ -83,6 +82,9 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           </MenuItem>
           <MenuItem href='/panel/kanban' icon={<i className='ri-user-settings-line' />}>
             Kanban
+          </MenuItem>
+          <MenuItem href='/panel/lia' icon={<i className='ri-robot-2-line' />}>
+            LIA
           </MenuItem>
         </MenuSection>
 

@@ -124,3 +124,25 @@ code {
   background-color: rgb(var(--mui-palette-info-mainChannel) / 0.08);
   border: 0;
 }
+
+.mui-tab {
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: var(--mui-palette-background-paper);
+  color: var(--mui-palette-text-secondary);
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.mui-tab[aria-current='page'],
+.mui-tab.active {
+  color: var(--mui-palette-primary-main);
+  border-bottom: 2px solid var(--mui-palette-primary-main);
+  background: var(--mui-palette-background-paper);
+  font-weight: 600;
+}
+.mui-tab:hover:not([aria-current='page']) {
+  background: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-primary);
+}

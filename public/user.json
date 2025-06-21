@@ -2,73 +2,416 @@
     {
         "id": "1",
         "avatarSrc": "https://picsum.photos/seed/avatar1/40/40",
-        "name": "Jordan Stevenson",
-        "username": "@amiccoo",
-        "email": "Jacinthe_Blick@hotmail.com",
-        "type": "Empresa",
-        "status": "inactivo"
+        "name": "Jordan",
+        "lastName": "Stevenson",
+        "contacts": {
+            "alias": "J.Steve",
+            "phones": [
+                {
+                    "region": "+52",
+                    "number": "5544332211",
+                    "type": "personal"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "jordan.stevenson@example.com",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "hombre",
+        "birthDate": "1985-07-12",
+        "profession": "Consultor",
+        "education": "licenciatura",
+        "maritalStatus": "casado(a)",
+        "disabled": false,
+        "category": "Cliente",
+        "marketingCampaign": true,
+        "addresses": [
+            {
+                "street": "Av. Reforma",
+                "noExt": "123",
+                "noInt": "5B",
+                "zip": "06500",
+                "colony": "Juárez",
+                "municipality": "Cuauhtémoc",
+                "city": "Ciudad de México",
+                "state": "CDMX",
+                "country": "México"
+            }
+        ],
+        "companies": [
+            {
+                "name": "Stevenson & Co.",
+                "position": "Socio Director"
+            }
+        ],
+        "profile": {
+            "decisionInfluence": "Sí",
+            "activities": "Reuniones estratégicas; aprobación de presupuesto",
+            "opportunityAreas": "Digitalización de procesos",
+            "recommendations": "Ofrecer plan anual con descuento",
+            "notes": "Cliente de largo plazo"
+        },
+        "documents": [
+            {
+                "fileName": "contrato_2024.pdf",
+                "fileType": "PDF",
+                "uploadedAt": "2024-03-15",
+                "note": "Contrato vigente"
+            }
+        ]
     },
     {
         "id": "2",
         "avatarSrc": "https://picsum.photos/seed/avatar2/40/40",
-        "name": "Richard Payne",
-        "username": "@brossiter15",
-        "email": "Jaylon_Bartell3@gmail.com",
-        "type": "Acreedor",
-        "status": "activo"
+        "name": "Richard",
+        "lastName": "Payne",
+        "contacts": {
+            "alias": "",
+            "phones": [
+                {
+                    "region": "+1",
+                    "number": "4155551234",
+                    "type": "trabajo"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "richard.payne@corporate.com",
+                    "type": "trabajo"
+                }
+            ]
+        },
+        "gender": "hombre",
+        "birthDate": "1978-11-02",
+        "profession": "Director Financiero",
+        "education": "posgrado",
+        "maritalStatus": "casado(a)",
+        "disabled": false,
+        "category": "Colaborador",
+        "marketingCampaign": false,
+        "addresses": [
+            {
+                "street": "123 Market St",
+                "noExt": "",
+                "noInt": "",
+                "zip": "94103",
+                "colony": "",
+                "municipality": "San Francisco",
+                "city": "San Francisco",
+                "state": "CA",
+                "country": "USA"
+            }
+        ],
+        "companies": [
+            {
+                "name": "Payne Financial",
+                "position": "CFO"
+            }
+        ],
+        "profile": {
+            "decisionInfluence": "Sí",
+            "activities": "Gestión de inversiones",
+            "opportunityAreas": "Expansión internacional",
+            "recommendations": "",
+            "notes": ""
+        },
+        "documents": []
     },
     {
         "id": "3",
         "avatarSrc": "https://picsum.photos/seed/avatar3/40/40",
-        "name": "Jennifer Summers",
-        "username": "@jsbemblinf",
-        "email": "Tristin_Johnson@gmail.com",
-        "type": "Proveedor",
-        "status": "activo"
+        "name": "Jennifer",
+        "lastName": "Summers",
+        "contacts": {
+            "alias": "Jen",
+            "phones": [
+                {
+                    "region": "+44",
+                    "number": "2071234567",
+                    "type": "personal"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "jennifer.summers@mail.co.uk",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "mujer",
+        "birthDate": "1990-02-25",
+        "profession": "Ingeniera de Software",
+        "education": "licenciatura",
+        "maritalStatus": "soltero(a)",
+        "disabled": false,
+        "category": "Prospecto",
+        "marketingCampaign": true,
+        "addresses": [],
+        "companies": [
+            {
+                "name": "Tech Innovators",
+                "position": "Senior Developer"
+            }
+        ],
+        "profile": {
+            "decisionInfluence": "No",
+            "activities": "Desarrollo y revisión de código",
+            "opportunityAreas": "Automatización de pruebas",
+            "recommendations": "",
+            "notes": ""
+        },
+        "documents": [
+            {
+                "fileName": "cv_jennifer.pdf",
+                "fileType": "PDF",
+                "uploadedAt": "2025-01-10",
+                "note": ""
+            }
+        ]
     },
     {
         "id": "4",
         "avatarSrc": "https://picsum.photos/seed/avatar4/40/40",
-        "name": "Mr. Justin Richardson",
-        "username": "@justin45",
-        "email": "Toney21@yahoo.com",
-        "type": "Cliente",
-        "status": "activo"
+        "name": "Justin",
+        "lastName": "Richardson",
+        "contacts": {
+            "alias": "",
+            "phones": [
+                {
+                    "region": "+52",
+                    "number": "",
+                    "type": "personal"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "Toney21@yahoo.com",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "",
+        "birthDate": "",
+        "profession": "",
+        "education": "",
+        "maritalStatus": "",
+        "disabled": false,
+        "category": "Prospecto",
+        "marketingCampaign": false,
+        "addresses": [],
+        "companies": [],
+        "profile": {},
+        "documents": []
     },
     {
         "id": "5",
         "avatarSrc": "https://picsum.photos/seed/avatar5/40/40",
-        "name": "Nicholas Tanner",
-        "username": "@tannernic",
-        "email": "Hunter_Kuhic68@hotmail.com",
-        "type": "Prospecto",
-        "status": "activo"
+        "name": "Nicholas",
+        "lastName": "Tanner",
+        "contacts": {
+            "alias": "",
+            "phones": [
+                {
+                    "region": "+52",
+                    "number": "5588776655",
+                    "type": "casa"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "hunter.kuhic68@hotmail.com",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "hombre",
+        "birthDate": "1982-09-18",
+        "profession": "Abogado",
+        "education": "posgrado",
+        "maritalStatus": "divorciado(a)",
+        "disabled": false,
+        "category": "Proveedor",
+        "marketingCampaign": true,
+        "addresses": [
+            {
+                "street": "Calle Hidalgo",
+                "noExt": "45",
+                "noInt": "",
+                "zip": "44100",
+                "colony": "Centro",
+                "municipality": "Guadalajara",
+                "city": "Guadalajara",
+                "state": "Jalisco",
+                "country": "México"
+            }
+        ],
+        "companies": [
+            {
+                "name": "GDL Legal",
+                "position": "Socio"
+            }
+        ],
+        "profile": {
+            "decisionInfluence": "Sí",
+            "activities": "Asesoría legal",
+            "opportunityAreas": "Expansión a nuevos mercados",
+            "recommendations": "Revisar contrato anual",
+            "notes": ""
+        },
+        "documents": [
+            {
+                "fileName": "certificado_profesional.pdf",
+                "fileType": "PDF",
+                "uploadedAt": "2023-11-20",
+                "note": "Cédula profesional"
+            }
+        ]
     },
     {
         "id": "6",
         "avatarSrc": "https://picsum.photos/seed/avatar6/40/40",
-        "name": "Crystal Mays",
-        "username": "@crystal99",
-        "email": "Norene_Bins@yahoo.com",
-        "type": "Empresa",
-        "status": "inactivo"
+        "name": "Crystal",
+        "lastName": "Mays",
+        "contacts": {
+            "alias": "",
+            "phones": [
+                {
+                    "region": "+1",
+                    "number": "2125559876",
+                    "type": "otro"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "norene.bins@yahoo.com",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "mujer",
+        "birthDate": "1995-05-05",
+        "profession": "Diseñadora Gráfica",
+        "education": "bachillerato",
+        "maritalStatus": "soltero(a)",
+        "disabled": false,
+        "category": "Prospecto",
+        "marketingCampaign": false,
+        "addresses": [
+            {
+                "street": "Broadway",
+                "noExt": "200",
+                "noInt": "10A",
+                "zip": "10007",
+                "colony": "",
+                "municipality": "Manhattan",
+                "city": "New York",
+                "state": "NY",
+                "country": "USA"
+            }
+        ],
+        "companies": [],
+        "profile": {
+            "decisionInfluence": "No",
+            "activities": "Diseño de material publicitario",
+            "opportunityAreas": "",
+            "recommendations": "",
+            "notes": ""
+        },
+        "documents": []
     },
     {
         "id": "7",
         "avatarSrc": "https://picsum.photos/seed/avatar7/40/40",
-        "name": "Mary Garcia",
-        "username": "@marygarcia4",
-        "email": "Emmitt.Walker14@hotmail.com",
-        "type": "Cliente",
-        "status": "inactivo"
+        "name": "Mary",
+        "lastName": "Garcia",
+        "contacts": {
+            "alias": "",
+            "phones": [],
+            "emails": [
+                {
+                    "address": "emmitt.walker14@hotmail.com",
+                    "type": "personal"
+                }
+            ]
+        },
+        "gender": "mujer",
+        "birthDate": "1972-12-30",
+        "profession": "",
+        "education": "secundaria",
+        "maritalStatus": "viudo(a)",
+        "disabled": false,
+        "category": "Prospecto",
+        "marketingCampaign": false,
+        "addresses": [],
+        "companies": [],
+        "profile": {},
+        "documents": []
     },
     {
         "id": "8",
         "avatarSrc": "https://picsum.photos/seed/avatar8/40/40",
-        "name": "Megan Roberts",
-        "username": "@megan78",
-        "email": "Patrick.Howe73@gmail.com",
-        "type": "Proveedor",
-        "status": "activo"
+        "name": "Alonso",
+        "lastName": "Mendoza",
+        "contacts": {
+            "alias": "Lic. Mendoza",
+            "phones": [
+                {
+                    "region": "+52",
+                    "number": "5612345678",
+                    "type": "trabajo"
+                }
+            ],
+            "emails": [
+                {
+                    "address": "alonso.mendoza@finanzasgrupo.com",
+                    "type": "trabajo"
+                }
+            ]
+        },
+        "gender": "hombre",
+        "birthDate": "1975-04-10",
+        "profession": "Asesor Financiero",
+        "education": "posgrado",
+        "maritalStatus": "casado(a)",
+        "disabled": false,
+        "category": "Acreedor",
+        "marketingCampaign": false,
+        "addresses": [
+            {
+                "street": "Calle Finanzas",
+                "noExt": "321",
+                "noInt": "4",
+                "zip": "11000",
+                "colony": "Lomas Altas",
+                "municipality": "Miguel Hidalgo",
+                "city": "Ciudad de México",
+                "state": "CDMX",
+                "country": "México"
+            }
+        ],
+        "companies": [
+            {
+                "name": "Grupo Mendoza Financiera",
+                "position": "Director General"
+            }
+        ],
+        "profile": {
+            "decisionInfluence": "Sí",
+            "activities": "Otorgamiento de crédito; evaluación financiera",
+            "opportunityAreas": "Alianzas estratégicas",
+            "recommendations": "Mantener pagos puntuales",
+            "notes": "Acreedor principal desde 2020"
+        },
+        "documents": [
+            {
+                "fileName": "contrato_credito.pdf",
+                "fileType": "PDF",
+                "uploadedAt": "2023-09-01",
+                "note": "Crédito vigente hasta 2025"
+            }
+        ]
     }
 ]
