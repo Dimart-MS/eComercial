@@ -126,6 +126,17 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     </Accordion>
   )
 
+  // --- Secciones de Acordeón ---
+  const sections: SectionKeyType[] = [
+    'comunicacion',
+    'datosPersonales',
+    'configuracion',
+    'empresaRelacionada',
+    'ubicacion',
+    'perfil',
+    'documentos'
+  ]
+
   return (
     <Card className='shadow-lg' sx={{ bgcolor: 'background.paper', borderRadius: 3 }}>
       <CardContent className='p-6'>
@@ -194,66 +205,101 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
         {/* Secciones de Acordeón */}
         <Box mt={2} className='flex flex-col'>
-          <AccordionSection id='comunicacion' title={sectionDisplayNames.comunicacion}>
-            {user.contacts.phones.map((phone, i) => (
-              <Box key={`phone-${i}`} mb={2}>
-                <DetailItem label='Teléfono' value={`${phone.region} ${phone.number}`} />
-                <DetailItem label='Tipo Tel.' value={phone.type} />
-              </Box>
-            ))}
-            {user.contacts.emails.map((email, i) => (
-              <Box key={`email-${i}`} mb={2}>
-                <DetailItem label='Correo' value={email.address} />
-                <DetailItem label='Tipo Correo' value={email.type} />
-              </Box>
-            ))}
-          </AccordionSection>
-          <AccordionSection id='datosPersonales' title={sectionDisplayNames.datosPersonales}>
-            <DetailItem label='Género' value={user.personalInfo.gender} />
-            <DetailItem label='Nacimiento' value={user.personalInfo.birthDate} />
-            <DetailItem label='Profesión' value={user.personalInfo.profession} />
-            <DetailItem label='Educación' value={user.personalInfo.education} />
-            <DetailItem label='Estado Civil' value={user.personalInfo.maritalStatus} />
-          </AccordionSection>
-          <AccordionSection id='configuracion' title={sectionDisplayNames.configuracion}>
-            <DetailItem label='Estado' value={user.status} />
-            <DetailItem label='Categoría' value={user.settings.category} />
-            <DetailItem label='Campaña MKT' value={user.settings.marketingCampaign} isCheckbox />
-          </AccordionSection>
-          <AccordionSection id='ubicacion' title={sectionDisplayNames.ubicacion}>
-            {user.addresses.map((addr, i) => (
-              <Box key={`addr-${i}`} mb={2} p={1.5} border={1} borderColor='divider' borderRadius={1}>
-                <Typography variant='subtitle2' gutterBottom>
-                  Dirección {i + 1}
-                </Typography>
-                <DetailItem
-                  label='Calle'
-                  value={`${addr.street} ${addr.extNum || ''} ${addr.intNum ? `Int. ${addr.intNum}` : ''}`}
-                />
-                <DetailItem label='Colonia' value={addr.neighborhood} />
-                <DetailItem label='C.P.' value={addr.zipCode} />
-                <DetailItem label='Ciudad' value={`${addr.municipality}, ${addr.city}`} />
-                <DetailItem label='País' value={`${addr.state}, ${addr.country}`} />
-              </Box>
-            ))}
-          </AccordionSection>
-          <AccordionSection id='perfil' title={sectionDisplayNames.perfil}>
-            <DetailItem label='Influye Decisiones' value={user.profile.influencesDecisions} isBoolean />
-            <DetailItem label='Actividades' value={user.profile.mainActivities} />
-            <DetailItem label='Oportunidades' value={user.profile.opportunityAreas} />
-            <DetailItem label='Recomendaciones' value={user.profile.recommendations} />
-            <DetailItem label='Notas' value={user.profile.notes} />
-          </AccordionSection>
-          <AccordionSection id='documentos' title={sectionDisplayNames.documentos}>
-            {user.documents.map((doc, i) => (
-              <Box key={`doc-${i}`} mb={2} p={1.5} border={1} borderColor='divider' borderRadius={1}>
-                <DetailItem label='Archivo' value={doc.fileName} />
-                <DetailItem label='Tipo' value={doc.fileType} />
-                <DetailItem label='Fecha' value={doc.uploadedAt} />
-                <DetailItem label='Nota' value={doc.observation} />
-              </Box>
-            ))}
-          </AccordionSection>
+          {sections.map(section => (
+            <AccordionSection key={section} id={section} title={sectionDisplayNames[section]}>
+              {section === 'comunicacion' && (
+                <>
+                  {user.contacts.phones.map((phone, i) => (
+                    <Box key={`phone-${i}`} mb={2}>
+                      <DetailItem label='Teléfono' value={`${phone.region} ${phone.number}`} />
+                      <DetailItem label='Tipo Tel.' value={phone.type} />
+                    </Box>
+                  ))}
+                  {user.contacts.emails.map((email, i) => (
+                    <Box key={`email-${i}`} mb={2}>
+                      <DetailItem label='Correo' value={email.address} />
+                      <DetailItem label='Tipo Correo' value={email.type} />
+                    </Box>
+                  ))}
+                </>
+              )}
+              {section === 'datosPersonales' && (
+                <>
+                  <DetailItem label='Género' value={user.personalInfo.gender} />
+                  <DetailItem label='Nacimiento' value={user.personalInfo.birthDate} />
+                  <DetailItem label='Profesión' value={user.personalInfo.profession} />
+                  <DetailItem label='Educación' value={user.personalInfo.education} />
+                  <DetailItem label='Estado Civil' value={user.personalInfo.maritalStatus} />
+                </>
+              )}
+              {section === 'configuracion' && (
+                <>
+                  <DetailItem label='Estado' value={user.status} />
+                  <DetailItem label='Categoría' value={user.settings.category} />
+                  <DetailItem label='Campaña MKT' value={user.settings.marketingCampaign} isCheckbox />
+                </>
+              )}
+              {section === 'empresaRelacionada' && (
+                <>
+                  {user.relatedCompanies && user.relatedCompanies.length > 0 ? (
+                    user.relatedCompanies.map((company, i) => (
+                      <Box key={`company-${i}`} mb={2} p={1.5} border={1} borderColor='divider' borderRadius={1}>
+                        <Typography variant='subtitle2' gutterBottom>
+                          Empresa {i + 1}
+                        </Typography>
+                        <DetailItem label='Nombre' value={company.companyName} />
+                        <DetailItem label='Puesto' value={company.position} />
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant='body2' color='text.secondary' textAlign='center'>
+                      No hay empresas relacionadas registradas
+                    </Typography>
+                  )}
+                </>
+              )}
+              {section === 'ubicacion' && (
+                <>
+                  {user.addresses.map((addr, i) => (
+                    <Box key={`addr-${i}`} mb={2} p={1.5} border={1} borderColor='divider' borderRadius={1}>
+                      <Typography variant='subtitle2' gutterBottom>
+                        Dirección {i + 1}
+                      </Typography>
+                      <DetailItem
+                        label='Calle'
+                        value={`${addr.street} ${addr.extNum || ''} ${addr.intNum ? `Int. ${addr.intNum}` : ''}`}
+                      />
+                      <DetailItem label='Colonia' value={addr.neighborhood} />
+                      <DetailItem label='C.P.' value={addr.zipCode} />
+                      <DetailItem label='Ciudad' value={`${addr.municipality}, ${addr.city}`} />
+                      <DetailItem label='País' value={`${addr.state}, ${addr.country}`} />
+                    </Box>
+                  ))}
+                </>
+              )}
+              {section === 'perfil' && (
+                <>
+                  <DetailItem label='Influye Decisiones' value={user.profile.influencesDecisions} isBoolean />
+                  <DetailItem label='Actividades' value={user.profile.mainActivities} />
+                  <DetailItem label='Oportunidades' value={user.profile.opportunityAreas} />
+                  <DetailItem label='Recomendaciones' value={user.profile.recommendations} />
+                  <DetailItem label='Notas' value={user.profile.notes} />
+                </>
+              )}
+              {section === 'documentos' && (
+                <>
+                  {user.documents.map((doc, i) => (
+                    <Box key={`doc-${i}`} mb={2} p={1.5} border={1} borderColor='divider' borderRadius={1}>
+                      <DetailItem label='Archivo' value={doc.fileName} />
+                      <DetailItem label='Tipo' value={doc.fileType} />
+                      <DetailItem label='Fecha' value={doc.uploadedAt} />
+                      <DetailItem label='Nota' value={doc.observation} />
+                    </Box>
+                  ))}
+                </>
+              )}
+            </AccordionSection>
+          ))}
         </Box>
 
         {/* Botones de Acción */}

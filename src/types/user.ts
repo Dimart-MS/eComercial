@@ -57,6 +57,10 @@ export interface UserAddress {
   city?: string
   state?: string
   country?: string
+  noExt?: string
+  noInt?: string
+  zip?: string
+  colony?: string
 }
 
 export interface UserProfileDetails {
@@ -67,10 +71,20 @@ export interface UserProfileDetails {
   notes?: string
 }
 
+export interface SocialNetwork {
+  type: string // Ej: Facebook, LinkedIn, etc.
+  username: string // Usuario o enlace
+}
+
+export interface RelatedCompany {
+  companyName: string
+  position: string
+}
+
 export interface UserDocument {
   fileName: string
-  fileType: string
-  url: string // URL al archivo en almacenamiento
+  fileType: string // Ej: pdf, jpg, etc.
+  url: string // URL o base64 temporal
   uploadedAt: string // Formato ISO
   observation?: string
 }
@@ -89,6 +103,9 @@ export interface UserType {
   addresses: UserAddress[]
   profile: UserProfileDetails
   documents: UserDocument[]
+  relatedCompanies?: RelatedCompany[]
+  socialNetworks?: SocialNetwork[]
+  companies?: RelatedCompany[]
 
   // Campos simplificados que la tabla usaba, se pueden derivar o mantener por compatibilidad
   email: string // Email principal
@@ -113,6 +130,7 @@ export type SectionKeyType =
   | 'ubicacion'
   | 'perfil'
   | 'documentos'
+  | 'empresaRelacionada'
 
 // Mapeo para mostrar nombres en la UI de edición
 export const sectionDisplayNames: Record<SectionKeyType, string> = {
@@ -120,6 +138,7 @@ export const sectionDisplayNames: Record<SectionKeyType, string> = {
   comunicacion: 'Comunicación',
   datosPersonales: 'Datos Personales Adicionales',
   configuracion: 'Configuración del Contacto',
+  empresaRelacionada: 'Empresas Relacionadas',
   ubicacion: 'Ubicación - Domicilio',
   perfil: 'Perfil del Contacto',
   documentos: 'Documentos Digitales'

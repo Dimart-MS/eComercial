@@ -1,4 +1,4 @@
-import type { UserType, UserAddress, UserDocument } from '@/types/user'
+import type { UserType, UserAddress, UserDocument, RelatedCompany } from '@/types/user'
 import { UserRole, UserStatus } from '@/types/user'
 
 /**
@@ -58,6 +58,12 @@ export const mapApiToUser = (apiUser: any): UserType => {
         uploadedAt: doc.uploadedAt,
         observation: doc.note,
         url: doc.url || '#' // Placeholder URL
+      })
+    ),
+    relatedCompanies: (apiUser.companies || []).map(
+      (company: any): RelatedCompany => ({
+        companyName: company.name || '',
+        position: company.position || ''
       })
     ),
 

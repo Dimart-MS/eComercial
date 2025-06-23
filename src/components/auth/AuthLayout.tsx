@@ -68,7 +68,6 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ illustrationSrc, children, page
         <Link href={ROUTES.LOGIN} style={{ position: 'absolute', top: 32, left: 32, zIndex: 2 }}>
           <img src={IMAGES.LOGO} alt='Logo' style={{ height: 32 }} />
         </Link>
-
         {/* Ilustración */}
         <Box
           component='img'
@@ -86,7 +85,6 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ illustrationSrc, children, page
           }}
         />
       </Box>
-
       {/* Panel Derecho - Formulario (1/4 de la pantalla) */}
       <Box
         sx={{

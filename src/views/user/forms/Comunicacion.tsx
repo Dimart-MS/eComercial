@@ -1,458 +1,358 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  IconButton,
-  Card,
-  CardContent,
-  Divider,
-  Grid
-} from '@mui/material'
+import { ChevronDownIcon } from '@/components/icons'
 
-import type { UserType, UserContacts, PhoneContact, EmailContact } from '@/types/user'
+import type { UserContacts, PhoneContact, EmailContact, SocialNetwork } from '@/types/user'
 
-// --- Icons ---
-const PhoneSolidIcon: React.FC<React.SVGProps<SVGSVGElement>> = props => (
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor' {...props}>
-    <path
-      fillRule='evenodd'
-      d='M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-5.25 0-9.5-4.25-9.5-9.5V3.5z'
-      clipRule='evenodd'
-    />
-  </svg>
-)
-
-const ChevronDownIconMini: React.FC<React.SVGProps<SVGSVGElement>> = props => (
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor' {...props}>
-    <path
-      fillRule='evenodd'
-      d='M5.22 8.22a.75.75 0 011.06 0L10 11.94l3.72-3.72a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.22 9.28a.75.75 0 010-1.06z'
-      clipRule='evenodd'
-    />
-  </svg>
-)
-
-const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = props => (
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor' {...props}>
-    <path
-      fillRule='evenodd'
-      d='M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z'
-      clipRule='evenodd'
-    />
-  </svg>
-)
-
-const TrashIcon: React.FC<React.SVGProps<SVGSVGElement>> = props => (
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor' {...props}>
-    <path
-      fillRule='evenodd'
-      d='M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807c1.123 0 2.086-.834 2.199-1.953l.841-10.518.149.022a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z'
-      clipRule='evenodd'
-    />
-  </svg>
-)
-
-// --- Country Data ---
-interface Country {
-  name: string
-  dial_code: string
-  code: string // ISO 2-letter country code
-  flag: string // Emoji representation
+interface EditComunicacionFormProps {
+  data: UserContacts & { socialNetworks?: SocialNetwork[] }
+  onChange: (
+    type: 'phones' | 'emails' | 'socialNetworks',
+    index: number,
+    field: keyof PhoneContact | keyof EmailContact | keyof SocialNetwork,
+    value: string
+  ) => void
+  onAdd?: (type: 'phones' | 'emails' | 'socialNetworks') => void
+  onRemove?: (type: 'phones' | 'emails' | 'socialNetworks', index: number) => void
 }
 
-const ALL_COUNTRIES: Country[] = [
-  { name: 'México', dial_code: '+52', code: 'MX', flag: '🇲🇽' },
-  { name: 'Estados Unidos', dial_code: '+1', code: 'US', flag: '🇺🇸' },
-  { name: 'Canadá', dial_code: '+1', code: 'CA', flag: '🇨🇦' },
-  { name: 'España', dial_code: '+34', code: 'ES', flag: '🇪🇸' },
-  { name: 'Argentina', dial_code: '+54', code: 'AR', flag: '🇦🇷' },
-  { name: 'Chile', dial_code: '+56', code: 'CL', flag: '🇨🇱' },
-  { name: 'Colombia', dial_code: '+57', code: 'CO', flag: '🇨🇴' },
-  { name: 'Perú', dial_code: '+51', code: 'PE', flag: '🇵🇪' },
-  { name: 'Venezuela', dial_code: '+58', code: 'VE', flag: '🇻🇪' },
-  { name: 'Brasil', dial_code: '+55', code: 'BR', flag: '🇧🇷' },
-  { name: 'Ecuador', dial_code: '+593', code: 'EC', flag: '🇪🇨' },
-  { name: 'Bolivia', dial_code: '+591', code: 'BO', flag: '🇧🇴' },
-  { name: 'Paraguay', dial_code: '+595', code: 'PY', flag: '🇵🇾' },
-  { name: 'Uruguay', dial_code: '+598', code: 'UY', flag: '🇺🇾' },
-  { name: 'Guatemala', dial_code: '+502', code: 'GT', flag: '🇬🇹' },
-  { name: 'Honduras', dial_code: '+504', code: 'HN', flag: '🇭🇳' },
-  { name: 'El Salvador', dial_code: '+503', code: 'SV', flag: '🇸🇻' },
-  { name: 'Nicaragua', dial_code: '+505', code: 'NI', flag: '🇳🇮' },
-  { name: 'Costa Rica', dial_code: '+506', code: 'CR', flag: '🇨🇷' },
-  { name: 'Panamá', dial_code: '+507', code: 'PA', flag: '🇵🇦' },
-  { name: 'Cuba', dial_code: '+53', code: 'CU', flag: '🇨🇺' },
-  { name: 'República Dominicana', dial_code: '+1', code: 'DO', flag: '🇩🇴' },
-  { name: 'Puerto Rico', dial_code: '+1', code: 'PR', flag: '🇵🇷' },
-  { name: 'Alemania', dial_code: '+49', code: 'DE', flag: '🇩🇪' },
-  { name: 'Francia', dial_code: '+33', code: 'FR', flag: '🇫🇷' },
-  { name: 'Italia', dial_code: '+39', code: 'IT', flag: '🇮🇹' },
-  { name: 'Reino Unido', dial_code: '+44', code: 'GB', flag: '🇬🇧' },
-  { name: 'China', dial_code: '+86', code: 'CN', flag: '🇨🇳' },
-  { name: 'Japón', dial_code: '+81', code: 'JP', flag: '🇯🇵' },
-  { name: 'Corea del Sur', dial_code: '+82', code: 'KR', flag: '🇰🇷' },
-  { name: 'India', dial_code: '+91', code: 'IN', flag: '🇮🇳' },
-  { name: 'Australia', dial_code: '+61', code: 'AU', flag: '🇦🇺' },
-  { name: 'Nueva Zelanda', dial_code: '+64', code: 'NZ', flag: '🇳🇿' },
-  { name: 'Rusia', dial_code: '+7', code: 'RU', flag: '🇷🇺' },
-  { name: 'Turquía', dial_code: '+90', code: 'TR', flag: '🇹🇷' },
-  { name: 'Egipto', dial_code: '+20', code: 'EG', flag: '🇪🇬' },
-  { name: 'Sudáfrica', dial_code: '+27', code: 'ZA', flag: '🇿🇦' },
-  { name: 'Nigeria', dial_code: '+234', code: 'NG', flag: '🇳🇬' },
-  { name: 'Kenia', dial_code: '+254', code: 'KE', flag: '🇰🇪' },
-  { name: 'Marruecos', dial_code: '+212', code: 'MA', flag: '🇲🇦' },
-  { name: 'Argelia', dial_code: '+213', code: 'DZ', flag: '🇩🇿' },
-  { name: 'Túnez', dial_code: '+216', code: 'TN', flag: '🇹🇳' },
-  { name: 'Libia', dial_code: '+218', code: 'LY', flag: '🇱🇾' },
-  { name: 'Sudán', dial_code: '+249', code: 'SD', flag: '🇸🇩' },
-  { name: 'Etiopía', dial_code: '+251', code: 'ET', flag: '🇪🇹' },
-  { name: 'Uganda', dial_code: '+256', code: 'UG', flag: '🇺🇬' },
-  { name: 'Tanzania', dial_code: '+255', code: 'TZ', flag: '🇹🇿' },
-  { name: 'Ghana', dial_code: '+233', code: 'GH', flag: '🇬🇭' },
-  { name: 'Costa de Marfil', dial_code: '+225', code: 'CI', flag: '🇨🇮' },
-  { name: 'Senegal', dial_code: '+221', code: 'SN', flag: '🇸🇳' },
-  { name: 'Mali', dial_code: '+223', code: 'ML', flag: '🇲🇱' },
-  { name: 'Burkina Faso', dial_code: '+226', code: 'BF', flag: '🇧🇫' },
-  { name: 'Níger', dial_code: '+227', code: 'NE', flag: '🇳🇪' },
-  { name: 'Chad', dial_code: '+235', code: 'TD', flag: '🇹🇩' },
-  { name: 'Camerún', dial_code: '+237', code: 'CM', flag: '🇨🇲' },
-  { name: 'República Centroafricana', dial_code: '+236', code: 'CF', flag: '🇨🇫' },
-  { name: 'Gabón', dial_code: '+241', code: 'GA', flag: '🇬🇦' },
-  { name: 'Congo', dial_code: '+242', code: 'CG', flag: '🇨🇬' },
-  { name: 'República Democrática del Congo', dial_code: '+243', code: 'CD', flag: '🇨🇩' },
-  { name: 'Angola', dial_code: '+244', code: 'AO', flag: '🇦🇴' },
-  { name: 'Guinea Ecuatorial', dial_code: '+240', code: 'GQ', flag: '🇬🇶' },
-  { name: 'Santo Tomé y Príncipe', dial_code: '+239', code: 'ST', flag: '🇸🇹' },
-  { name: 'Cabo Verde', dial_code: '+238', code: 'CV', flag: '🇨🇻' },
-  { name: 'Guinea-Bisáu', dial_code: '+245', code: 'GW', flag: '🇬🇼' },
-  { name: 'Guinea', dial_code: '+224', code: 'GN', flag: '🇬🇳' },
-  { name: 'Sierra Leona', dial_code: '+232', code: 'SL', flag: '🇸🇱' },
-  { name: 'Liberia', dial_code: '+231', code: 'LR', flag: '🇱🇷' },
-  { name: 'Togo', dial_code: '+228', code: 'TG', flag: '🇹🇬' },
-  { name: 'Benín', dial_code: '+229', code: 'BJ', flag: '🇧🇯' },
-  { name: 'Niger', dial_code: '+227', code: 'NE', flag: '🇳🇪' },
-  { name: 'Chad', dial_code: '+235', code: 'TD', flag: '🇹🇩' },
-  { name: 'Sudán del Sur', dial_code: '+211', code: 'SS', flag: '🇸🇸' },
-  { name: 'Eritrea', dial_code: '+291', code: 'ER', flag: '🇪🇷' },
-  { name: 'Yibuti', dial_code: '+253', code: 'DJ', flag: '🇩🇯' },
-  { name: 'Somalia', dial_code: '+252', code: 'SO', flag: '🇸🇴' },
-  { name: 'Comoras', dial_code: '+269', code: 'KM', flag: '🇰🇲' },
-  { name: 'Seychelles', dial_code: '+248', code: 'SC', flag: '🇸🇨' },
-  { name: 'Mauricio', dial_code: '+230', code: 'MU', flag: '🇲🇺' },
-  { name: 'Madagascar', dial_code: '+261', code: 'MG', flag: '🇲🇬' },
-  { name: 'Malawi', dial_code: '+265', code: 'MW', flag: '🇲🇼' },
-  { name: 'Zambia', dial_code: '+260', code: 'ZM', flag: '🇿🇲' },
-  { name: 'Zimbabue', dial_code: '+263', code: 'ZW', flag: '🇿🇼' },
-  { name: 'Botsuana', dial_code: '+267', code: 'BW', flag: '🇧🇼' },
-  { name: 'Namibia', dial_code: '+264', code: 'NA', flag: '🇳🇦' },
-  { name: 'Lesoto', dial_code: '+266', code: 'LS', flag: '🇱🇸' },
-  { name: 'Suazilandia', dial_code: '+268', code: 'SZ', flag: '🇸🇿' },
-  { name: 'Mozambique', dial_code: '+258', code: 'MZ', flag: '🇲🇿' },
-  { name: 'Burundi', dial_code: '+257', code: 'BI', flag: '🇧🇮' },
-  { name: 'Ruanda', dial_code: '+250', code: 'RW', flag: '🇷🇼' }
+const COUNTRY_OPTIONS = [
+  { name: 'México', code: '+52', flag: '🇲🇽' },
+  { name: 'Estados Unidos', code: '+1', flag: '🇺🇸' },
+  { name: 'Canadá', code: '+1', flag: '🇨🇦' },
+  { name: 'España', code: '+34', flag: '🇪🇸' },
+  { name: 'Argentina', code: '+54', flag: '🇦🇷' },
+  { name: 'Chile', code: '+56', flag: '🇨🇱' },
+  { name: 'Colombia', code: '+57', flag: '🇨🇴' },
+  { name: 'Perú', code: '+51', flag: '🇵🇪' },
+  { name: 'Venezuela', code: '+58', flag: '🇻🇪' },
+  { name: 'Brasil', code: '+55', flag: '🇧🇷' },
+  { name: 'Ecuador', code: '+593', flag: '🇪🇨' },
+  { name: 'Bolivia', code: '+591', flag: '🇧🇴' },
+  { name: 'Paraguay', code: '+595', flag: '🇵🇾' },
+  { name: 'Uruguay', code: '+598', flag: '🇺🇾' },
+  { name: 'Guatemala', code: '+502', flag: '��🇹' },
+  { name: 'Honduras', code: '+504', flag: '🇭🇳' },
+  { name: 'El Salvador', code: '+503', flag: '🇸🇻' },
+  { name: 'Nicaragua', code: '+505', flag: '🇳🇮' },
+  { name: 'Costa Rica', code: '+506', flag: '🇨🇷' },
+  { name: 'Panamá', code: '+507', flag: '🇵🇦' },
+  { name: 'Cuba', code: '+53', flag: '🇨🇺' },
+  { name: 'República Dominicana', code: '+1809', flag: '🇩🇴' },
+  { name: 'Puerto Rico', code: '+1787', flag: '🇵🇷' },
+  { name: 'Alemania', code: '+49', flag: '🇩🇪' },
+  { name: 'Francia', code: '+33', flag: '🇫🇷' },
+  { name: 'Italia', code: '+39', flag: '🇮🇹' },
+  { name: 'Reino Unido', code: '+44', flag: '🇬🇧' },
+  { name: 'China', code: '+86', flag: '🇨🇳' },
+  { name: 'Japón', code: '+81', flag: '🇯🇵' },
+  { name: 'Corea del Sur', code: '+82', flag: '🇰🇷' },
+  { name: 'India', code: '+91', flag: '🇮🇳' },
+  { name: 'Australia', code: '+61', flag: '🇦🇺' },
+  { name: 'Nueva Zelanda', code: '+64', flag: '🇳🇿' },
+  { name: 'Rusia', code: '+7', flag: '🇷🇺' },
+  { name: 'Turquía', code: '+90', flag: '🇹🇷' },
+  { name: 'Egipto', code: '+20', flag: '🇪🇬' },
+  { name: 'Sudáfrica', code: '+27', flag: '🇿🇦' },
+  { name: 'Nigeria', code: '+234', flag: '🇳🇬' },
+  { name: 'Kenia', code: '+254', flag: '🇰🇪' },
+  { name: 'Marruecos', code: '+212', flag: '🇲��' },
+  { name: 'Argelia', code: '+213', flag: '��🇿' },
+  { name: 'Túnez', code: '+216', flag: '🇹🇳' },
+  { name: 'Libia', code: '+218', flag: '🇱🇾' },
+  { name: 'Sudán', code: '+249', flag: '🇸🇩' },
+  { name: 'Etiopía', code: '+251', flag: '🇪🇹' },
+  { name: 'Uganda', code: '+256', flag: '🇺🇬' },
+  { name: 'Tanzania', code: '+255', flag: '🇹🇿' },
+  { name: 'Ghana', code: '+233', flag: '🇬🇭' },
+  { name: 'Costa de Marfil', code: '+225', flag: '🇨🇮' },
+  { name: 'Senegal', code: '+221', flag: '🇸🇳' },
+  { name: 'Mali', code: '+223', flag: '🇲🇱' },
+  { name: 'Burkina Faso', code: '+226', flag: '🇧🇫' },
+  { name: 'Níger', code: '+227', flag: '🇳🇪' },
+  { name: 'Chad', code: '+235', flag: '🇹🇩' },
+  { name: 'Camerún', code: '+237', flag: '🇨🇲' },
+  { name: 'República Centroafricana', code: '+236', flag: '🇨🇫' },
+  { name: 'Gabón', code: '+241', flag: '🇬🇦' },
+  { name: 'Congo', code: '+242', flag: '🇨🇬' },
+  { name: 'República Democrática del Congo', code: '+243', flag: '🇨🇩' },
+  { name: 'Angola', code: '+244', flag: '🇦🇴' },
+  { name: 'Guinea Ecuatorial', code: '+240', flag: '🇬🇶' },
+  { name: 'Santo Tomé y Príncipe', code: '+239', flag: '🇸🇹' },
+  { name: 'Cabo Verde', code: '+238', flag: '🇨🇻' },
+  { name: 'Guinea-Bisáu', code: '+245', flag: '🇬🇼' },
+  { name: 'Guinea', code: '+224', flag: '🇬🇳' },
+  { name: 'Sierra Leona', code: '+232', flag: '🇸🇱' },
+  { name: 'Liberia', code: '+231', flag: '🇱🇷' },
+  { name: 'Togo', code: '+228', flag: '🇹🇬' },
+  { name: 'Benín', code: '+229', flag: '🇧🇯' },
+  { name: 'Sudán del Sur', code: '+249', flag: '🇸🇸' },
+  { name: 'Eritrea', code: '+291', flag: '🇪🇷' },
+  { name: 'Yibuti', code: '+253', flag: '🇩🇯' },
+  { name: 'Somalia', code: '+252', flag: '🇸🇴' },
+  { name: 'Comoras', code: '+269', flag: '🇰🇲' },
+  { name: 'Seychelles', code: '+248', flag: '🇸🇨' },
+  { name: 'Mauricio', code: '+230', flag: '🇲🇺' },
+  { name: 'Madagascar', code: '+261', flag: '🇲��' },
+  { name: 'Malawi', code: '+265', flag: '��🇼' },
+  { name: 'Zambia', code: '+260', flag: '🇿🇲' },
+  { name: 'Zimbabue', code: '+263', flag: '🇿🇼' },
+  { name: 'Botsuana', code: '+267', flag: '🇧🇼' },
+  { name: 'Namibia', code: '+264', flag: '🇳🇦' },
+  { name: 'Lesoto', code: '+266', flag: '🇱🇸' },
+  { name: 'Suazilandia', code: '+268', flag: '🇸🇿' },
+  { name: 'Mozambique', code: '+258', flag: '🇲🇿' },
+  { name: 'Burundi', code: '+257', flag: '🇧🇮' },
+  { name: 'Ruanda', code: '+250', flag: '🇷🇼' }
 ]
 
-// --- Component Interface ---
-interface ComunicacionFormProps {
-  user: UserType
-  onSave: (contacts: UserContacts) => void
-  onCancel: () => void
-}
+const inputClass =
+  'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-gray-900'
 
-const ComunicacionForm: React.FC<ComunicacionFormProps> = ({ user, onSave, onCancel }) => {
-  const [contacts, setContacts] = useState<UserContacts>(user.contacts)
-  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState<number | null>(null)
-  const [countrySearchTerm, setCountrySearchTerm] = useState('')
-  const countryDropdownRef = useRef<HTMLDivElement>(null)
+const selectClass = `${inputClass} appearance-none`
+
+const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onChange, onAdd, onRemove }) => {
+  // Dropdown país para cada teléfono
+  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState<number | null>(null)
+  const [countrySearch, setCountrySearch] = useState('')
+  const dropdownRef = useRef<HTMLUListElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
-        setIsCountryDropdownOpen(null)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsRegionDropdownOpen(null)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    if (isRegionDropdownOpen !== null) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
 
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isRegionDropdownOpen])
 
-  const handlePhoneChange = (index: number, field: keyof PhoneContact, value: string) => {
-    const newPhones = [...contacts.phones]
+  // --- Teléfonos ---
+  const phones = data.phones || []
 
-    newPhones[index] = { ...newPhones[index], [field]: value }
-    setContacts({ ...contacts, phones: newPhones })
-  }
+  // --- Correos ---
+  const emails = data.emails || []
 
-  const handleEmailChange = (index: number, field: keyof EmailContact, value: string) => {
-    const newEmails = [...contacts.emails]
-
-    newEmails[index] = { ...newEmails[index], [field]: value }
-    setContacts({ ...contacts, emails: newEmails })
-  }
-
-  const addPhone = () => {
-    const newPhone: PhoneContact = { region: '+52', number: '', type: 'personal' }
-
-    setContacts({ ...contacts, phones: [...contacts.phones, newPhone] })
-  }
-
-  const addEmail = () => {
-    const newEmail: EmailContact = { address: '', type: 'personal', alias: '' }
-
-    setContacts({ ...contacts, emails: [...contacts.emails, newEmail] })
-  }
-
-  const removePhone = (index: number) => {
-    const newPhones = contacts.phones.filter((_, i) => i !== index)
-
-    setContacts({ ...contacts, phones: newPhones })
-  }
-
-  const removeEmail = (index: number) => {
-    const newEmails = contacts.emails.filter((_, i) => i !== index)
-
-    setContacts({ ...contacts, emails: newEmails })
-  }
-
-  const handleCountrySelect = (country: Country, phoneIndex: number) => {
-    handlePhoneChange(phoneIndex, 'region', country.dial_code)
-    setIsCountryDropdownOpen(null)
-    setCountrySearchTerm('')
-  }
-
-  const filteredCountries = ALL_COUNTRIES.filter(
-    country =>
-      country.name.toLowerCase().includes(countrySearchTerm.toLowerCase()) ||
-      country.dial_code.includes(countrySearchTerm)
-  )
-
-  const getSelectedCountry = (dialCode: string) => {
-    return ALL_COUNTRIES.find(c => c.dial_code === dialCode) || ALL_COUNTRIES[0]
-  }
+  // --- Redes sociales ---
+  const socials = data.socialNetworks || []
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant='h6' gutterBottom>
-        Editar Información de Comunicación
-      </Typography>
-
+    <div className='space-y-6'>
       {/* Teléfonos */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant='h6' color='primary'>
-              Teléfonos
-            </Typography>
-            <Button startIcon={<PlusIcon />} onClick={addPhone} variant='outlined' size='small'>
-              Agregar Teléfono
-            </Button>
-          </Box>
-
-          {contacts.phones.map((phone, index) => (
-            <Box key={index} sx={{ mb: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                  Teléfono {index + 1}
-                </Typography>
-                {contacts.phones.length > 1 && (
-                  <IconButton size='small' color='error' onClick={() => removePhone(index)}>
-                    <TrashIcon />
-                  </IconButton>
-                )}
-              </Box>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <PhoneSolidIcon style={{ width: 20, height: 20, marginRight: 8, color: 'gray' }} />
-                    <Box sx={{ position: 'relative', minWidth: 120 }} ref={countryDropdownRef}>
-                      <Button
-                        variant='outlined'
-                        onClick={() => setIsCountryDropdownOpen(isCountryDropdownOpen === index ? null : index)}
-                        sx={{
-                          minWidth: 120,
-                          justifyContent: 'space-between',
-                          textTransform: 'none'
+      <fieldset className='border border-gray-300 p-4 rounded-md'>
+        <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
+          Teléfono
+          <button type='button' className='ml-2 text-primary' onClick={() => onAdd && onAdd('phones')}>
+            + Agregar
+          </button>
+        </legend>
+        <div className='space-y-3 mt-2'>
+          {phones.map((phone, idx) => (
+            <div key={idx} className='flex items-stretch gap-2 relative'>
+              <div className='relative'>
+                <button
+                  ref={buttonRef}
+                  type='button'
+                  className='flex items-center justify-center h-full px-3 py-2 border border-r-0 border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary'
+                  onClick={() => setIsRegionDropdownOpen(isRegionDropdownOpen === idx ? null : idx)}
+                  aria-haspopup='listbox'
+                  aria-expanded={isRegionDropdownOpen === idx}
+                  aria-label='Seleccionar código de país'
+                >
+                  <span className='text-lg leading-none'>
+                    {COUNTRY_OPTIONS.find(c => c.code === phone.region)?.flag || '🌐'}
+                  </span>
+                  <ChevronDownIcon className='w-4 h-4 text-gray-600 ml-1.5' />
+                </button>
+                {isRegionDropdownOpen === idx && (
+                  <ul
+                    ref={dropdownRef}
+                    className='absolute z-20 mt-1 w-max max-h-56 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm'
+                    tabIndex={-1}
+                    role='listbox'
+                  >
+                    <li className='px-2 py-1'>
+                      <input
+                        type='text'
+                        placeholder='Buscar país...'
+                        value={countrySearch}
+                        onChange={e => setCountrySearch(e.target.value)}
+                        className='w-full px-2 py-1 border border-gray-200 rounded text-sm'
+                        autoFocus
+                      />
+                    </li>
+                    {COUNTRY_OPTIONS.filter(
+                      c =>
+                        c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                        c.code.includes(countrySearch) ||
+                        c.flag.includes(countrySearch)
+                    ).map(country => (
+                      <li
+                        key={`${country.flag}-${country.code}-${country.name}`}
+                        className={`text-gray-900 cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-primary hover:text-white group
+                          ${phone.region === country.code ? 'bg-primary text-white' : ''}`}
+                        onClick={() => {
+                          onChange('phones', idx, 'region', country.code)
+                          setIsRegionDropdownOpen(null)
+                          setCountrySearch('')
                         }}
+                        role='option'
+                        aria-selected={phone.region === country.code}
                       >
-                        <span style={{ fontSize: '1.2em', marginRight: 8 }}>
-                          {getSelectedCountry(phone.region).flag}
-                        </span>
-                        <ChevronDownIconMini style={{ width: 16, height: 16 }} />
-                      </Button>
-
-                      {isCountryDropdownOpen === index && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            right: 0,
-                            zIndex: 1000,
-                            bgcolor: 'background.paper',
-                            border: 1,
-                            borderColor: 'divider',
-                            borderRadius: 1,
-                            maxHeight: 200,
-                            overflow: 'auto',
-                            boxShadow: 3
-                          }}
-                        >
-                          <TextField
-                            size='small'
-                            placeholder='Buscar país...'
-                            value={countrySearchTerm}
-                            onChange={e => setCountrySearchTerm(e.target.value)}
-                            sx={{ p: 1 }}
-                          />
-                          {filteredCountries.map(country => (
-                            <Box
-                              key={country.code}
-                              onClick={() => handleCountrySelect(country, index)}
-                              sx={{
-                                p: 1,
-                                cursor: 'pointer',
-                                '&:hover': { bgcolor: 'action.hover' },
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between'
-                              }}
+                        <div className='flex items-center'>
+                          <span className='text-lg leading-none mr-2'>{country.flag}</span>
+                          <span className='font-normal block truncate'>
+                            {country.name} ({country.code})
+                          </span>
+                        </div>
+                        {phone.region === country.code && (
+                          <span className='text-white absolute inset-y-0 right-0 flex items-center pr-3 group-hover:text-white'>
+                            <svg
+                              className='h-5 w-5'
+                              xmlns='http://www.w3.org/2000/svg'
+                              viewBox='0 0 20 20'
+                              fill='currentColor'
+                              aria-hidden='true'
                             >
-                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <span style={{ fontSize: '1.2em', marginRight: 8 }}>{country.flag}</span>
-                                <Typography variant='body2'>{country.name}</Typography>
-                              </Box>
-                              <Typography variant='caption' color='text.secondary'>
-                                {country.dial_code}
-                              </Typography>
-                            </Box>
-                          ))}
-                        </Box>
-                      )}
-                    </Box>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type='tel'
-                    value={phone.number}
-                    onChange={e => handlePhoneChange(index, 'number', e.target.value)}
-                    placeholder='Número de teléfono'
-                    size='small'
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <FormControl fullWidth size='small'>
-                    <InputLabel>Tipo de teléfono</InputLabel>
-                    <Select
-                      value={phone.type}
-                      onChange={e => handlePhoneChange(index, 'type', e.target.value)}
-                      label='Tipo de teléfono'
-                    >
-                      <MenuItem value='personal'>Personal</MenuItem>
-                      <MenuItem value='trabajo'>Trabajo</MenuItem>
-                      <MenuItem value='casa'>Casa</MenuItem>
-                      <MenuItem value='otro'>Otro</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Box>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Correos */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant='h6' color='primary'>
-              Correos Electrónicos
-            </Typography>
-            <Button startIcon={<PlusIcon />} onClick={addEmail} variant='outlined' size='small'>
-              Agregar Correo
-            </Button>
-          </Box>
-
-          {contacts.emails.map((email, index) => (
-            <Box key={index} sx={{ mb: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant='subtitle2' color='text.secondary'>
-                  Correo {index + 1}
-                </Typography>
-                {contacts.emails.length > 1 && (
-                  <IconButton size='small' color='error' onClick={() => removeEmail(index)}>
-                    <TrashIcon />
-                  </IconButton>
+                              <path
+                                fillRule='evenodd'
+                                d='M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z'
+                                clipRule='evenodd'
+                              />
+                            </svg>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </Box>
-
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    type='email'
-                    value={email.address}
-                    onChange={e => handleEmailChange(index, 'address', e.target.value)}
-                    placeholder='usuario@ejemplo.com'
-                    label='Dirección de correo'
-                    size='small'
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth size='small'>
-                    <InputLabel>Tipo de correo</InputLabel>
-                    <Select
-                      value={email.type}
-                      onChange={e => handleEmailChange(index, 'type', e.target.value)}
-                      label='Tipo de correo'
-                    >
-                      <MenuItem value='personal'>Personal</MenuItem>
-                      <MenuItem value='trabajo'>Trabajo</MenuItem>
-                      <MenuItem value='otro'>Otro</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    value={email.alias || ''}
-                    onChange={e => handleEmailChange(index, 'alias', e.target.value)}
-                    placeholder='Alias (opcional)'
-                    label='Alias'
-                    size='small'
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+              </div>
+              <input
+                type='tel'
+                value={phone.number}
+                onChange={e => onChange('phones', idx, 'number', e.target.value)}
+                className='block w-full flex-grow px-3 py-2 border border-gray-300 rounded-r-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-gray-900'
+                placeholder='Número'
+                maxLength={15}
+              />
+              <select
+                value={phone.type}
+                onChange={e => onChange('phones', idx, 'type', e.target.value)}
+                className={selectClass + ' max-w-[120px]'}
+              >
+                <option value='personal'>Personal</option>
+                <option value='trabajo'>Trabajo</option>
+                <option value='casa'>Casa</option>
+                <option value='otro'>Otro</option>
+              </select>
+              {phones.length > 1 && (
+                <button type='button' className='ml-2 text-red-500' onClick={() => onRemove && onRemove('phones', idx)}>
+                  ×
+                </button>
+              )}
+            </div>
           ))}
-        </CardContent>
-      </Card>
-
-      {/* Botones de acción */}
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-        <Button variant='outlined' onClick={onCancel}>
-          Cancelar
-        </Button>
-        <Button variant='contained' onClick={() => onSave(contacts)}>
-          Guardar Cambios
-        </Button>
-      </Box>
-    </Box>
+        </div>
+      </fieldset>
+      {/* Correos */}
+      <fieldset className='border border-gray-300 p-4 rounded-md'>
+        <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
+          Correos
+          <button type='button' className='ml-2 text-primary' onClick={() => onAdd && onAdd('emails')}>
+            + Agregar
+          </button>
+        </legend>
+        <div className='space-y-3 mt-2'>
+          {emails.map((email, idx) => (
+            <div key={idx} className='flex items-center gap-2 relative'>
+              <input
+                type='email'
+                value={email.address}
+                onChange={e => onChange('emails', idx, 'address', e.target.value)}
+                className={inputClass}
+                placeholder='usuario@ejemplo.com'
+                maxLength={60}
+              />
+              <select
+                value={email.type}
+                onChange={e => onChange('emails', idx, 'type', e.target.value)}
+                className={selectClass + ' max-w-[120px]'}
+              >
+                <option value='personal'>Personal</option>
+                <option value='trabajo'>Trabajo</option>
+                <option value='otro'>Otro</option>
+              </select>
+              <input
+                type='text'
+                value={email.alias || ''}
+                onChange={e => onChange('emails', idx, 'alias', e.target.value)}
+                className={inputClass + ' max-w-[120px]'}
+                placeholder='Alias'
+                maxLength={30}
+              />
+              {emails.length > 1 && (
+                <button type='button' className='ml-2 text-red-500' onClick={() => onRemove && onRemove('emails', idx)}>
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </fieldset>
+      {/* Redes sociales */}
+      <fieldset className='border border-gray-300 p-4 rounded-md'>
+        <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
+          Redes sociales
+          <button type='button' className='ml-2 text-primary' onClick={() => onAdd && onAdd('socialNetworks')}>
+            + Agregar
+          </button>
+        </legend>
+        <div className='space-y-3 mt-2'>
+          {socials.map((sn, idx) => (
+            <div key={idx} className='flex items-center gap-2 relative'>
+              <input
+                type='text'
+                value={sn.type}
+                onChange={e => onChange('socialNetworks', idx, 'type', e.target.value)}
+                className={inputClass + ' max-w-[120px]'}
+                placeholder='Tipo (Ej: LinkedIn)'
+                maxLength={20}
+              />
+              <input
+                type='text'
+                value={sn.username}
+                onChange={e => onChange('socialNetworks', idx, 'username', e.target.value)}
+                className={inputClass}
+                placeholder='Usuario o enlace'
+                maxLength={60}
+              />
+              {socials.length > 1 && (
+                <button
+                  type='button'
+                  className='ml-2 text-red-500'
+                  onClick={() => onRemove && onRemove('socialNetworks', idx)}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    </div>
   )
 }
 
-export default ComunicacionForm
+export default EditComunicacionForm
