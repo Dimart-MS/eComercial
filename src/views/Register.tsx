@@ -2,7 +2,6 @@
 
 // React
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 
 // Next
 import Link from 'next/link'
@@ -18,8 +17,13 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
+// Third-party Imports
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 // Type Imports
 import type { Mode } from '@core/types'
+import { type RegistrationData, registrationSchema } from '@/utils/schemas'
 
 // Componentes
 import AuthLayout from '@components/auth/AuthLayout'
@@ -29,54 +33,33 @@ import { useImageVariant } from '@core/hooks/useImageVariant'
 
 // Constantes y utils
 import { TEXT_CONTENT, SOCIAL_LINKS, ROUTES } from '@/constants'
-import { validateRegistrationForm } from '@/utils/validators'
 
 const darkImg = '/images/pages/fondo.png'
 const lightImg = '/images/pages/fondo2.jpg'
 
 const Register = ({ mode }: { mode: Mode }) => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    agreeTerms: false
-  })
-
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isConfirmPasswordShown, setIsConfirmPasswordShown] = useState(false)
-  const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
 
   const authBackground = useImageVariant(mode, lightImg, darkImg)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }))
-  }
-
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
-  const handleClickShowConfirmPassword = () => setIsConfirmPasswordShown(show => !show)
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const validationErrors = validateRegistrationForm(formData)
-
-    setErrors(validationErrors)
-    if (Object.keys(validationErrors).length > 0) return
-
-    // Aquí iría la lógica de registro (API, etc.)
-    setFormData({
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<RegistrationData>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
       username: '',
       email: '',
       password: '',
       confirmPassword: '',
       agreeTerms: false
-    })
+    }
+  })
+
+  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+  const handleClickShowConfirmPassword = () => setIsConfirmPasswordShown(show => !show)
+
+  const onSubmit = (data: RegistrationData) => {
+    console.log(data) // Aquí iría la lógica de registro (API, etc.)
+    reset()
   }
 
   return (
@@ -87,88 +70,108 @@ const Register = ({ mode }: { mode: Mode }) => {
           <Typography className='mbs-1'>{TEXT_CONTENT.REGISTER.SUBTITLE}</Typography>
         </div>
 
-        {errors.form && (
+        {errors.root && (
           <Alert severity='error' className='mb-4'>
-            {errors.form}
+            {errors.root.message}
           </Alert>
         )}
 
-        <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
-          <TextField
-            fullWidth
-            label={TEXT_CONTENT.REGISTER.USERNAME_LABEL}
+        <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5'>
+          <Controller
             name='username'
-            value={formData.username}
-            onChange={handleChange}
-            error={!!errors.username}
-            helperText={errors.username}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label={TEXT_CONTENT.REGISTER.USERNAME_LABEL}
+                error={!!errors.username}
+                helperText={errors.username?.message}
+              />
+            )}
           />
-          <TextField
-            fullWidth
-            label={TEXT_CONTENT.REGISTER.EMAIL_LABEL}
+          <Controller
             name='email'
-            value={formData.email}
-            onChange={handleChange}
-            error={!!errors.email}
-            helperText={errors.email}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label={TEXT_CONTENT.REGISTER.EMAIL_LABEL}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+              />
+            )}
           />
-          <TextField
-            fullWidth
-            label={TEXT_CONTENT.REGISTER.PASSWORD_LABEL}
+          <Controller
             name='password'
-            type={isPasswordShown ? 'text' : 'password'}
-            value={formData.password}
-            onChange={handleChange}
-            error={!!errors.password}
-            helperText={errors.password}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <IconButton
-                    size='small'
-                    edge='end'
-                    onClick={handleClickShowPassword}
-                    onMouseDown={e => e.preventDefault()}
-                  >
-                    <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label={TEXT_CONTENT.REGISTER.PASSWORD_LABEL}
+                type={isPasswordShown ? 'text' : 'password'}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        size='small'
+                        edge='end'
+                        onClick={handleClickShowPassword}
+                        onMouseDown={e => e.preventDefault()}
+                      >
+                        <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
           />
-          <TextField
-            fullWidth
-            label='Confirmar contraseña'
+          <Controller
             name='confirmPassword'
-            type={isConfirmPasswordShown ? 'text' : 'password'}
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <IconButton
-                    size='small'
-                    edge='end'
-                    onClick={handleClickShowConfirmPassword}
-                    onMouseDown={e => e.preventDefault()}
-                  >
-                    <i className={isConfirmPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label='Confirmar contraseña'
+                type={isConfirmPasswordShown ? 'text' : 'password'}
+                error={!!errors.confirmPassword}
+                helperText={errors.confirmPassword?.message}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        size='small'
+                        edge='end'
+                        onClick={handleClickShowConfirmPassword}
+                        onMouseDown={e => e.preventDefault()}
+                      >
+                        <i className={isConfirmPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
           />
-          <FormControlLabel
-            control={
-              <Checkbox name='agreeTerms' checked={formData.agreeTerms} onChange={handleChange} color='primary' />
-            }
-            label={TEXT_CONTENT.REGISTER.TERMS}
+          <Controller
+            name='agreeTerms'
+            control={control}
+            render={({ field }) => (
+              <FormControlLabel
+                control={<Checkbox {...field} checked={field.value} color='primary' />}
+                label={TEXT_CONTENT.REGISTER.TERMS}
+              />
+            )}
           />
           {errors.agreeTerms && (
-            <Typography color='error' variant='body2'>
-              {errors.agreeTerms}
+            <Typography color='error' variant='body2' className='ml-4'>
+              {errors.agreeTerms.message}
             </Typography>
           )}
           <Button fullWidth variant='contained' type='submit'>

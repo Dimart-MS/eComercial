@@ -2,7 +2,6 @@
 
 // React Imports
 import { useState, useContext, useEffect } from 'react'
-import type { FormEvent } from 'react'
 
 // Next Imports
 import Link from 'next/link'
@@ -19,8 +18,13 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 import Alert from '@mui/material/Alert'
 
+// Third-party Imports
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
 // Type Imports
 import type { Mode } from '@core/types'
+import { type LoginData, loginSchema } from '@/utils/schemas'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
@@ -44,69 +48,35 @@ const Login = ({ mode }: { mode: Mode }) => {
   const router = useRouter()
   const auth = useContext(AuthContext)
 
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError
+  } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { emailOrUsername: '', password: '' }
+  })
+
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
-  const [formData, setFormData] = useState({ email: '', password: '', rememberMe: false })
-  const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({})
 
   useEffect(() => {
-    setErrors(prevErrors => {
-      if (prevErrors.form !== auth?.error) {
-        const newErrors = { ...prevErrors }
-
-        if (auth?.error) {
-          newErrors.form = auth.error
-        } else {
-          delete newErrors.form
-        }
-
-        return newErrors
-      }
-
-      return prevErrors
-    })
-  }, [auth?.error])
+    if (auth?.error) {
+      setError('root.serverError', { type: 'custom', message: auth.error })
+    }
+  }, [auth?.error, setError])
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target
-
-    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
-
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }))
-    }
-
-    if (errors.form) {
-      setErrors(prev => ({ ...prev, form: undefined }))
-      auth?.clearError()
-    }
-  }
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    auth?.clearError()
-
-    const validationErrors: { [key: string]: string } = {}
-
-    if (!formData.email) validationErrors.email = 'El email es requerido'
-    if (!formData.password) validationErrors.password = 'La contraseña es requerida'
-
-    if (formData.password && formData.password.length < 8) {
-      validationErrors.password = 'La contraseña debe tener al menos 8 caracteres'
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-
-      return
-    }
-
+  const onSubmit = async (data: LoginData) => {
     if (!auth) return
 
+    auth.clearError()
+
     try {
-      await auth.login(formData.email, formData.password)
+      await auth.login(data.emailOrUsername, data.password)
       router.push('/panel')
     } catch (err) {
       console.error('Login - Error en submit:', err)
@@ -121,55 +91,68 @@ const Login = ({ mode }: { mode: Mode }) => {
           <Typography className='mbs-1'>{TEXT_CONTENT.LOGIN.SUBTITLE}</Typography>
         </div>
 
-        {errors.form && (
+        {errors.root?.serverError && (
           <Alert severity='error' className='mb-4'>
-            {errors.form}
+            {errors.root.serverError.message}
           </Alert>
         )}
 
-        <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
-          <TextField
-            autoFocus
-            fullWidth
-            label={TEXT_CONTENT.LOGIN.EMAIL_LABEL}
-            name='email'
-            value={formData.email}
-            onChange={handleChange}
-            error={!!errors.email}
-            helperText={errors.email}
+        <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-5'>
+          <Controller
+            name='emailOrUsername'
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                autoFocus
+                fullWidth
+                label={TEXT_CONTENT.LOGIN.EMAIL_LABEL}
+                error={!!errors.emailOrUsername}
+                helperText={errors.emailOrUsername?.message}
+                onChange={e => {
+                  field.onChange(e)
+                  auth?.clearError()
+                }}
+              />
+            )}
           />
 
-          <TextField
-            fullWidth
-            label={TEXT_CONTENT.LOGIN.PASSWORD_LABEL}
+          <Controller
             name='password'
-            id='outlined-adornment-password'
-            type={isPasswordShown ? 'text' : 'password'}
-            value={formData.password}
-            onChange={handleChange}
-            error={!!errors.password}
-            helperText={errors.password}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position='end'>
-                  <IconButton
-                    size='small'
-                    edge='end'
-                    onClick={handleClickShowPassword}
-                    onMouseDown={e => e.preventDefault()}
-                  >
-                    <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                  </IconButton>
-                </InputAdornment>
-              )
-            }}
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                fullWidth
+                label={TEXT_CONTENT.LOGIN.PASSWORD_LABEL}
+                id='outlined-adornment-password'
+                type={isPasswordShown ? 'text' : 'password'}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                onChange={e => {
+                  field.onChange(e)
+                  auth?.clearError()
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        size='small'
+                        edge='end'
+                        onClick={handleClickShowPassword}
+                        onMouseDown={e => e.preventDefault()}
+                      >
+                        <i className={isPasswordShown ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+              />
+            )}
           />
 
           <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-            <FormControlLabel
-              control={<Checkbox name='rememberMe' checked={formData.rememberMe} onChange={handleChange} />}
-              label={TEXT_CONTENT.LOGIN.REMEMBER_ME}
-            />
+            <FormControlLabel control={<Checkbox />} label={TEXT_CONTENT.LOGIN.REMEMBER_ME} />
             <Typography className='text-end' color='primary' component={Link} href={ROUTES.FORGOT_PASSWORD}>
               {TEXT_CONTENT.LOGIN.FORGOT_PASSWORD}
             </Typography>

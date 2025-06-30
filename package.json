@@ -17,6 +17,7 @@
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@hookform/resolvers": "^5.1.1",
     "@mui/lab": "5.0.0-alpha.170",
     "@mui/material": "^5.15.19",
     "@mui/material-nextjs": "^5.15.11",
@@ -26,11 +27,13 @@
     "react": "^18.3.1",
     "react-apexcharts": "^1.4.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.59.0",
     "react-icons": "^5.5.0",
     "react-perfect-scrollbar": "^1.5.8",
     "react-router-dom": "^7.6.2",
     "react-use": "^17.5.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.218",
