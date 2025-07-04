@@ -1,197 +1,108 @@
-import { REGEX_PATTERNS } from '@/constants'
-import type { ValidationErrors } from '../types/auth'
+import { z } from 'zod'
 
-/**
- * Valida el formato de un email
- * @param email - El email a validar
- * @returns string | undefined - Mensaje de error si el formato es inválido, undefined si es válido
- */
-export const validateEmailFormat = (email: string): string | undefined => {
-  if (!email) return 'El email es requerido.'
-  if (!REGEX_PATTERNS.EMAIL.test(email)) return 'Formato de email inválido.'
-  
-return undefined
+// Patrones de validación genéricos y completos
+export const REGEX_PATTERNS = {
+  PASSWORD_UPPERCASE: /[A-Z]/,
+  PASSWORD_LOWERCASE: /[a-z]/,
+  PASSWORD_DIGIT: /[0-9]/,
+  PASSWORD_SPECIAL_CHAR: /[!@#$%^&*(),.?":{}|<>_\-\[\]=+;'/`~]/,
+  ONLY_NUMBERS: /^[0-9]+$/,
+  ONLY_LETTERS: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/,
+  ZIP_CODE: /^[0-9]{5,6}$/,
+  RFC: /^([A-ZÑ&]{3,4})\d{6}(?:[A-Z\d]{3})?$/,
+  CURP: /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z\d]{2}$/,
+  FILE_TYPE: /^(application\/pdf|image\/jpeg|image\/png|application\/msword|application\/vnd\.ms-excel|otro)$/,
 }
 
-/**
- * Valida el formato de un nombre de usuario
- * @param username - El nombre de usuario a validar
- * @returns string | undefined - Mensaje de error si el formato es inválido, undefined si es válido
- */
-export const validateUsernameFormat = (username: string): string | undefined => {
-  if (!username) return 'El nombre de usuario es requerido.'
-  if (username.length < 3) return 'El nombre de usuario debe tener al menos 3 caracteres.'
-  if (username.length > 30) return 'El nombre de usuario no puede tener más de 30 caracteres.'
+// Validadores atómicos y reutilizables
+export const requiredString = (fieldName = 'Este campo') =>
+  z.string().trim().min(1, { message: `${fieldName} es requerido.` })
 
-  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-    return 'El nombre de usuario solo puede contener letras, números, guiones y guiones bajos.'
+export const optionalString = (maxLength?: number, fieldName = 'Este campo') => {
+  let schema = z.string().trim()
+
+  if (maxLength) {
+    schema = schema.max(maxLength, { message: `${fieldName} debe tener máximo ${maxLength} caracteres.` })
   }
 
-  
-return undefined
+  return schema.optional()
 }
 
-/**
- * Valida la complejidad de una contraseña
- * @param password - La contraseña a validar
- * @returns string | undefined - Mensaje de error si la contraseña no cumple con los requisitos, undefined si es válida
- */
-export const validatePassword = (password: string): string | undefined => {
-  if (!password) return 'La contraseña es requerida.'
-  if (password.length < 8) return 'La contraseña debe tener al menos 8 caracteres.'
-  if (password.length > 100) return 'La contraseña no puede tener más de 100 caracteres.'
+export const email = (fieldName = 'Email') =>
+  requiredString(fieldName).email({ message: 'Formato de email inválido.' })
 
-  const errors: string[] = []
+export const phone = (fieldName = 'Teléfono') =>
+  requiredString(fieldName)
+    .regex(REGEX_PATTERNS.ONLY_NUMBERS, { message: 'Solo números.' })
+    .min(10, { message: 'Mínimo 10 dígitos.' })
+    .max(15, { message: 'Máximo 15 dígitos.' })
 
-  if (!REGEX_PATTERNS.PASSWORD_UPPERCASE.test(password)) errors.push('mayúscula (A-Z)')
-  if (!REGEX_PATTERNS.PASSWORD_LOWERCASE.test(password)) errors.push('minúscula (a-z)')
-  if (!REGEX_PATTERNS.PASSWORD_DIGIT.test(password)) errors.push('número (0-9)')
-  if (!REGEX_PATTERNS.PASSWORD_SPECIAL_CHAR.test(password)) errors.push('carácter especial (!@#...)')
+export const name = (fieldName = 'Nombre') =>
+  requiredString(fieldName)
+    .min(2, { message: 'Mínimo 2 caracteres.' })
+    .max(60, { message: 'Máximo 60 caracteres.' })
+    .regex(REGEX_PATTERNS.ONLY_LETTERS, { message: 'Solo letras y espacios.' })
 
-  if (errors.length > 0) {
-    return `La contraseña debe contener al menos una ${errors.join(', ')}.`
-  }
+export const username = (fieldName = 'Usuario') =>
+  requiredString(fieldName)
+    .min(3, { message: 'Mínimo 3 caracteres.' })
+    .max(30, { message: 'Máximo 30 caracteres.' })
+    .regex(/^[a-zA-Z0-9_.-]+$/, { message: 'Caracteres inválidos.' })
 
-  return undefined
-}
+export const password = (fieldName = 'Contraseña') =>
+  requiredString(fieldName)
+    .min(8, { message: 'Debe tener al menos 8 caracteres.' })
+    .regex(REGEX_PATTERNS.PASSWORD_UPPERCASE, { message: 'Debe contener al menos una mayúscula (A-Z).' })
+    .regex(REGEX_PATTERNS.PASSWORD_LOWERCASE, { message: 'Debe contener al menos una minúscula (a-z).' })
+    .regex(REGEX_PATTERNS.PASSWORD_DIGIT, { message: 'Debe contener al menos un número (0-9).' })
+    .regex(REGEX_PATTERNS.PASSWORD_SPECIAL_CHAR, { message: 'Debe contener al menos un carácter especial (!@#...).' })
 
-/**
- * Valida que la confirmación de contraseña coincida con la contraseña original
- * @param password - La contraseña original
- * @param confirmPassword - La confirmación de contraseña
- * @returns string | undefined - Mensaje de error si no coinciden, undefined si coinciden
- */
-export const validateConfirmPassword = (password: string, confirmPassword: string): string | undefined => {
-  if (!confirmPassword) return 'Confirmar contraseña es requerido.'
-  if (password !== confirmPassword) return 'Las contraseñas no coinciden.'
-  
-return undefined
-}
+export const zipCode = (fieldName = 'Código Postal') =>
+  requiredString(fieldName).regex(REGEX_PATTERNS.ZIP_CODE, { message: 'Código postal inválido.' })
 
-/**
- * Valida el formulario de inicio de sesión
- * @param values - Objeto con email/username y contraseña
- * @returns ValidationErrors - Objeto con errores de validación
- */
-export const validateLoginForm = (values: { emailOrUsername: string; password: string }): ValidationErrors => {
-  const errors: ValidationErrors = {}
-  const { emailOrUsername, password } = values
+export const rfc = (fieldName = 'RFC') =>
+  requiredString(fieldName).regex(REGEX_PATTERNS.RFC, { message: 'RFC inválido.' })
 
-  // Validar email/username
-  if (!emailOrUsername) {
-    errors.emailOrUsername = 'Email o nombre de usuario es requerido.'
-  } else {
-    const trimmedValue = emailOrUsername.trim()
+export const curp = (fieldName = 'CURP') =>
+  requiredString(fieldName).regex(REGEX_PATTERNS.CURP, { message: 'CURP inválido.' })
 
-    if (emailOrUsername !== trimmedValue) {
-      errors.emailOrUsername = 'No se permiten espacios al inicio o final.'
-    } else {
-      const isEmail = emailOrUsername.includes('@')
+export const date = (fieldName = 'Fecha') =>
+  requiredString(fieldName).refine(val => !isNaN(Date.parse(val)), { message: 'Fecha inválida.' })
 
-      if (isEmail) {
-        const emailError = validateEmailFormat(emailOrUsername)
+export const booleanField = (fieldName = 'Valor') =>
+  z.boolean({ required_error: `${fieldName} es requerido.` })
 
-        if (emailError) errors.emailOrUsername = emailError
-      } else {
-        const usernameError = validateUsernameFormat(emailOrUsername)
+// Ejemplo de uso en esquemas para cualquier módulo
+export const addressSchema = z.object({
+  street: requiredString('Calle'),
+  extNum: requiredString('No. Ext.').regex(REGEX_PATTERNS.ONLY_NUMBERS, { message: 'Solo números.' }),
+  intNum: optionalString(),
+  zipCode: zipCode(),
+  neighborhood: requiredString('Colonia'),
+  municipality: requiredString('Municipio'),
+  city: requiredString('Ciudad'),
+  state: requiredString('Estado'),
+  country: requiredString('País'),
+})
 
-        if (usernameError) errors.emailOrUsername = usernameError
-      }
-    }
-  }
+// Esquema para documentos digitales (solo valida campos de archivo, no RFC/CURP)
+export const documentSchema = z.object({
+  fileName: requiredString('Nombre del archivo').max(60, { message: 'Máximo 60 caracteres.' }),
+  fileType: requiredString('Tipo de archivo').regex(REGEX_PATTERNS.FILE_TYPE, { message: 'Tipo de archivo no permitido.' }),
+  url: requiredString('Archivo'),
+  observation: optionalString(200, 'Observaciones'),
+  uploadedAt: date('Fecha de carga')
+})
 
-  // Validar contraseña
-  const passwordError = validatePassword(password)
+export const registrationSchema = z.object({
+  username: username(),
+  email: email(),
+  password: password(),
+  confirmPassword: requiredString('Confirmar contraseña'),
+  agreeTerms: z.boolean().refine(value => value === true, { message: 'Debes aceptar los términos y condiciones.' }),
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Las contraseñas no coinciden.',
+  path: ['confirmPassword'],
+})
 
-  if (passwordError) errors.password = passwordError
-
-  return errors
-}
-
-/**
- * Interfaz para los datos del formulario de registro
- */
-interface RegistrationFormDataType {
-  username: string
-  email: string
-  password: string
-  confirmPassword: string
-  agreeTerms: boolean
-}
-
-/**
- * Valida el formulario de registro
- * @param values - Objeto con los datos del formulario de registro
- * @returns ValidationErrors - Objeto con errores de validación
- */
-export const validateRegistrationForm = (values: RegistrationFormDataType): ValidationErrors => {
-  const errors: ValidationErrors = {}
-  const { username, email, password, confirmPassword, agreeTerms } = values
-
-  // Validar username
-  const trimmedUsername = username.trim()
-
-  if (!trimmedUsername) {
-    errors.username = 'El nombre de usuario es requerido.'
-  } else if (username !== trimmedUsername) {
-    errors.username = 'No se permiten espacios al inicio o final.'
-  } else {
-    const usernameError = validateUsernameFormat(trimmedUsername)
-
-    if (usernameError) errors.username = usernameError
-  }
-
-  // Validar email
-  const trimmedEmail = email.trim()
-
-  if (!trimmedEmail) {
-    errors.email = 'El email es requerido.'
-  } else if (email !== trimmedEmail) {
-    errors.email = 'No se permiten espacios al inicio o final.'
-  } else {
-    const emailError = validateEmailFormat(trimmedEmail)
-
-    if (emailError) errors.email = emailError
-  }
-
-  // Validar contraseña
-  const passwordError = validatePassword(password)
-
-  if (passwordError) errors.password = passwordError
-
-  // Validar confirmación de contraseña
-  const confirmPasswordError = validateConfirmPassword(password, confirmPassword)
-
-  if (confirmPasswordError) errors.confirmPassword = confirmPasswordError
-
-  // Validar términos y condiciones
-  if (!agreeTerms) {
-    errors.agreeTerms = 'Debes aceptar los términos y condiciones.'
-  }
-
-  return errors
-}
-
-/**
- * Valida el formulario de recuperación de contraseña
- * @param values - Objeto con el email
- * @returns ValidationErrors - Objeto con errores de validación
- */
-export const validateForgotPasswordForm = (values: { email: string }): ValidationErrors => {
-  const errors: ValidationErrors = {}
-  const { email } = values
-
-  const trimmedEmail = email.trim()
-
-  if (!trimmedEmail) {
-    errors.email = 'El email es requerido.'
-  } else if (email !== trimmedEmail) {
-    errors.email = 'No se permiten espacios al inicio o final.'
-  } else {
-    const emailError = validateEmailFormat(trimmedEmail)
-
-    if (emailError) errors.email = emailError
-  }
-
-  return errors
-}
+export type RegistrationData = z.infer<typeof registrationSchema>

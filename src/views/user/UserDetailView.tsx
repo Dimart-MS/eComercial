@@ -95,15 +95,6 @@ const UserDetailView: React.FC<UserDetailViewProps> = ({ user }) => {
   const handleEmpresaRelacionadaChange = (companies: RelatedCompany[]) =>
     setEditData(prev => ({ ...prev, empresaRelacionada: companies }))
 
-  const handleEmpresaRelacionadaAdd = () =>
-    setEditData(prev => ({
-      ...prev,
-      empresaRelacionada: [...prev.empresaRelacionada, { companyName: '', position: '' }]
-    }))
-
-  const handleEmpresaRelacionadaRemove = (idx: number) =>
-    setEditData(prev => ({ ...prev, empresaRelacionada: prev.empresaRelacionada.filter((_, i) => i !== idx) }))
-
   // Handlers para documentos
   const handleDocumentosChange = (docs: UserDocument[]) => setEditData(prev => ({ ...prev, documentos: docs }))
 

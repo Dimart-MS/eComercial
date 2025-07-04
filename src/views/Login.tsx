@@ -24,7 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 // Type Imports
 import type { Mode } from '@core/types'
-import { type LoginData, loginSchema } from '@/utils/schemas'
+import { type LoginData, loginSchema } from '@/utils/validators'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'

@@ -23,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 // Type Imports
 import type { Mode } from '@core/types'
-import { type RegistrationData, registrationSchema } from '@/utils/schemas'
+import { type RegistrationData, registrationSchema } from '@/utils/validators'
 
 // Componentes
 import AuthLayout from '@components/auth/AuthLayout'
@@ -43,7 +43,13 @@ const Register = ({ mode }: { mode: Mode }) => {
 
   const authBackground = useImageVariant(mode, lightImg, darkImg)
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm<RegistrationData>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm<RegistrationData>({
+    mode: 'onChange',
     resolver: zodResolver(registrationSchema),
     defaultValues: {
       username: '',

@@ -1,43 +1,12 @@
-import React from 'react'
+'use client'
 
+import React, { useState } from 'react'
+import { z } from 'zod'
+import { requiredString, zipCode as zipCodeValidation } from '@/utils/validators'
 import type { UserAddress } from '@/types/user'
 
-const estadosMexico = [
-  'Aguascalientes',
-  'Baja California',
-  'Baja California Sur',
-  'Campeche',
-  'Chiapas',
-  'Chihuahua',
-  'Ciudad de México',
-  'Coahuila',
-  'Colima',
-  'Durango',
-  'Estado de México',
-  'Guanajuato',
-  'Guerrero',
-  'Hidalgo',
-  'Jalisco',
-  'Michoacán',
-  'Morelos',
-  'Nayarit',
-  'Nuevo León',
-  'Oaxaca',
-  'Puebla',
-  'Querétaro',
-  'Quintana Roo',
-  'San Luis Potosí',
-  'Sinaloa',
-  'Sonora',
-  'Tabasco',
-  'Tamaulipas',
-  'Tlaxcala',
-  'Veracruz',
-  'Yucatán',
-  'Zacatecas'
-]
-
-const paises = ['México', 'Estados Unidos', 'Canadá', 'España', 'Argentina', 'Colombia', 'Chile', 'Perú', 'Brasil']
+const estadosMexico = ['Aguascalientes', 'Baja California', '...', 'Zacatecas']
+const paises = ['México', 'Estados Unidos', 'Canadá', '...', 'Brasil']
 
 interface EditUbicacionFormProps {
   data: UserAddress[]
@@ -46,182 +15,70 @@ interface EditUbicacionFormProps {
   onRemove: (index: number) => void
 }
 
-const inputClass =
-  'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-gray-900'
-
-const smallInputClass =
-  'block w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-xs text-gray-900'
-
-const selectClass = `${inputClass} appearance-none`
+const inputClass = 'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-gray-900'
+const errorTextClass = 'text-red-500 text-xs mt-1'
 
 const EditUbicacionForm: React.FC<EditUbicacionFormProps> = ({ data, onChange, onAdd, onRemove }) => {
-  const handleFieldChange = (idx: number, field: keyof UserAddress, value: string) => {
-    const updated = [...data]
+  const [errors, setErrors] = useState<any[]>([]);
 
-    updated[idx] = { ...updated[idx], [field]: value }
-    onChange(updated)
-  }
+  const validateField = (index: number, field: keyof UserAddress, value: any) => {
+    let schema: z.ZodSchema<any> | null = null;
+    if (field === 'zipCode') {
+      schema = zipCodeValidation();
+    } else if (['street', 'extNum', 'neighborhood', 'municipality', 'city', 'state', 'country'].includes(field)) {
+      schema = requiredString(field.charAt(0).toUpperCase() + field.slice(1));
+    }
+
+    if (!schema) return;
+
+    const result = schema.safeParse(value);
+    setErrors(prev => {
+      const newErrors = [...prev];
+      if (!newErrors[index]) newErrors[index] = {};
+      if (result.success) {
+        delete newErrors[index][field];
+      } else {
+        newErrors[index][field] = result.error.errors[0].message;
+      }
+      return newErrors;
+    });
+  };
+
+  const handleFieldChange = (idx: number, field: keyof UserAddress, value: string) => {
+    const updated = [...data];
+    updated[idx] = { ...updated[idx], [field]: value };
+    onChange(updated);
+    validateField(idx, field, value);
+  };
 
   return (
     <div className='space-y-3'>
       {data.map((address, idx) => (
         <fieldset key={idx} className='border border-gray-300 p-4 rounded-md relative'>
-          {data.length > 1 && (
-            <button
-              type='button'
-              className='absolute top-2 right-2 text-red-500'
-              onClick={() => onRemove(idx)}
-              title='Eliminar dirección'
-            >
-              ×
-            </button>
-          )}
-          <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
-            Ubicación {data.length > 1 ? idx + 1 : ''}
-          </legend>
-          <div>
-            <label htmlFor={`street-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              Calle
-            </label>
-            <input
-              type='text'
-              id={`street-${idx}`}
-              value={address.street ?? ''}
-              onChange={e => handleFieldChange(idx, 'street', e.target.value)}
-              className={inputClass}
-              placeholder='Ej: Av. Reforma'
-            />
-          </div>
-          <div className='grid grid-cols-5 gap-3'>
-            <div className='col-span-2'>
-              <label htmlFor={`extNum-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-                No. Ext.
-              </label>
-              <input
-                type='text'
-                id={`extNum-${idx}`}
-                value={address.extNum ?? address.noExt ?? ''}
-                onChange={e => handleFieldChange(idx, 'extNum', e.target.value)}
-                className={smallInputClass}
-                maxLength={6}
-                placeholder='1234'
-                inputMode='numeric'
-                pattern='[0-9]*'
-              />
-            </div>
-            <div className='col-span-2'>
-              <label htmlFor={`intNum-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-                No. Int.
-              </label>
-              <input
-                type='text'
-                id={`intNum-${idx}`}
-                value={address.intNum ?? address.noInt ?? ''}
-                onChange={e => handleFieldChange(idx, 'intNum', e.target.value)}
-                className={smallInputClass}
-                maxLength={6}
-                placeholder='Opcional'
-                inputMode='numeric'
-                pattern='[0-9]*'
-              />
-            </div>
-            <div className='col-span-1'>
-              <label htmlFor={`zipCode-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-                C.P.
-              </label>
-              <input
-                type='text'
-                id={`zipCode-${idx}`}
-                value={address.zipCode ?? address.zip ?? ''}
-                onChange={e => handleFieldChange(idx, 'zipCode', e.target.value)}
-                className={smallInputClass}
-                maxLength={6}
-                placeholder='00000'
-                inputMode='numeric'
-                pattern='[0-9]*'
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor={`neighborhood-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              Colonia
-            </label>
-            <input
-              type='text'
-              id={`neighborhood-${idx}`}
-              value={address.neighborhood ?? address.colony ?? ''}
-              onChange={e => handleFieldChange(idx, 'neighborhood', e.target.value)}
-              className={inputClass}
-              placeholder='Ej: Centro'
-            />
-          </div>
-          <div>
-            <label htmlFor={`municipality-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              Municipio
-            </label>
-            <input
-              type='text'
-              id={`municipality-${idx}`}
-              value={address.municipality ?? ''}
-              onChange={e => handleFieldChange(idx, 'municipality', e.target.value)}
-              className={inputClass}
-              placeholder='Ej: Benito Juárez'
-            />
-          </div>
-          <div className='max-w-md'>
-            <label htmlFor={`city-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              Ciudad
-            </label>
-            <input
-              type='text'
-              id={`city-${idx}`}
-              value={address.city ?? ''}
-              onChange={e => handleFieldChange(idx, 'city', e.target.value)}
-              className={inputClass}
-              placeholder='Ej: Ciudad de México'
-            />
-          </div>
-          <div className='max-w-md'>
-            <label htmlFor={`state-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              Estado
-            </label>
-            <select
-              id={`state-${idx}`}
-              value={address.state ?? ''}
-              onChange={e => handleFieldChange(idx, 'state', e.target.value)}
-              className={selectClass}
-            >
-              <option value=''>Seleccionar...</option>
-              {estadosMexico.map(estado => (
-                <option key={estado} value={estado}>
-                  {estado}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='max-w-md'>
-            <label htmlFor={`country-${idx}`} className='block text-xs font-medium text-gray-600 mb-1'>
-              País
-            </label>
-            <select
-              id={`country-${idx}`}
-              value={address.country ?? ''}
-              onChange={e => handleFieldChange(idx, 'country', e.target.value)}
-              className={selectClass}
-            >
-              <option value=''>Seleccionar...</option>
-              {paises.map(pais => (
-                <option key={pais} value={pais}>
-                  {pais}
-                </option>
-              ))}
-            </select>
-          </div>
+          {data.length > 1 && <button type='button' className='absolute top-2 right-2 text-red-500 font-bold' onClick={() => onRemove(idx)}>×</button>}
+          <legend className='text-sm font-medium text-gray-700 px-1'>Ubicación {idx + 1}</legend>
+          
+          {Object.keys(address).map(field => {
+            const key = field as keyof UserAddress;
+            if (key === 'intNum') return null; // Omitir No. Int. por ahora
+
+            return (
+              <div key={key} className="my-2">
+                <label className="block text-xs font-medium text-gray-600 mb-1">{key.charAt(0).toUpperCase() + key.slice(1)}</label>
+                <input
+                  type='text'
+                  value={address[key] ?? ''}
+                  onChange={e => handleFieldChange(idx, key, e.target.value)}
+                  className={`${inputClass} ${errors[idx]?.[key] ? 'border-red-500' : ''}`}
+                />
+                {errors[idx]?.[key] && <p className={errorTextClass}>{errors[idx][key]}</p>}
+              </div>
+            )
+          })}
+
         </fieldset>
       ))}
-      <button type='button' className='bg-primary text-white px-3 py-1 rounded' onClick={onAdd}>
-        + Agregar dirección
-      </button>
+      <button type='button' className='mt-3 text-sm text-primary' onClick={onAdd}>+ Agregar Dirección</button>
     </div>
   )
 }
