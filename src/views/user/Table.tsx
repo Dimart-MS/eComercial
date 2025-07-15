@@ -1,3 +1,21 @@
+/**
+ * TABLA DE CONTACTOS - eComercial
+ * 
+ * Componente principal para gestión y visualización de contactos.
+ * Implementa tabla interactiva con filtrado, ordenamiento y búsqueda.
+ * 
+ * CARACTERÍSTICAS:
+ * - Carga de datos desde JSON (preparado para API)
+ * - Filtros dinámicos por tipo de contacto
+ * - Ordenamiento multi-columna
+ * - Búsqueda global en tiempo real
+ * - Hover cards informativos
+ * - Estados de carga y error
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
@@ -22,15 +40,30 @@ import {
 import tableStyles from '@core/styles/table.module.css'
 import { useUserNavigation } from '@/hooks/useUserNavigation'
 
-// Opciones de tipo de usuario
+/**
+ * OPCIONES DE CONFIGURACIÓN
+ * 
+ * Estas constantes definen las opciones disponibles para filtros
+ * y categorización de contactos en el sistema.
+ */
+
+// Opciones de tipo de usuario para filtrado
 export const TYPE_OPTIONS = ['Prospecto', 'Cliente', 'Proveedor', 'Acreedor', 'Colaborador']
 
 /**
  * Opciones de estado de usuario.
+ * Define los estados posibles para un contacto en el sistema.
  */
 export const STATUS_OPTIONS = ['activo', 'inactivo']
 
-// Tipo para los usuarios
+/**
+ * TIPOS DE DATOS
+ * 
+ * Definiciones TypeScript para la estructura de datos de contactos
+ * y configuración de la tabla.
+ */
+
+// Tipo principal para las filas de la tabla
 type TableBodyRowType = {
   id: string
   avatarSrc?: string
@@ -65,7 +98,7 @@ type TableBodyRowType = {
   }
 }
 
-// Tipos para el ordenamiento
+// Tipos para el sistema de ordenamiento
 type SortDirection = 'asc' | 'desc' | null
 type SortColumn = 'name' | 'lastName' | 'email' | 'phone' | 'company'
 
@@ -75,7 +108,21 @@ type SortConfig = {
 }
 
 /**
+ * COMPONENTE: UserHoverCard
+ * 
  * Card flotante que muestra información detallada del usuario al hacer hover.
+ * Implementa un sistema de posicionamiento inteligente con transiciones suaves.
+ * 
+ * CARACTERÍSTICAS:
+ * - Posicionamiento automático (right-start)
+ * - Transiciones con Fade
+ * - Información estructurada del contacto
+ * - Diseño responsive
+ * - Z-index optimizado
+ * 
+ * @param row - Datos del contacto a mostrar
+ * @param open - Estado de visibilidad del card
+ * @param anchorEl - Elemento ancla para posicionamiento
  */
 const UserHoverCard = ({
   row,
@@ -159,6 +206,32 @@ const UserHoverCard = ({
   </Popper>
 )
 
+/**
+ * COMPONENTE PRINCIPAL: Table
+ * 
+ * Tabla de contactos con funcionalidades completas de gestión.
+ * Implementa un sistema de datos complejo con múltiples estados
+ * y interacciones de usuario.
+ * 
+ * FUNCIONALIDADES:
+ * - Carga y transformación de datos
+ * - Filtrado por tipo de contacto
+ * - Búsqueda global en tiempo real
+ * - Ordenamiento multi-columna
+ * - Hover cards informativos
+ * - Navegación a detalles
+ * - Estados de carga y error
+ * 
+ * ESTADOS:
+ * - globalSearch: Búsqueda global
+ * - typeFilter: Filtro por tipo de contacto
+ * - sortConfig: Configuración de ordenamiento
+ * - rowsData: Datos de contactos
+ * - loading: Estado de carga
+ * - error: Estado de error
+ * - hoveredUserId: ID del usuario en hover
+ * - anchorEl: Elemento ancla para hover card
+ */
 const Table = () => {
   const { navigateToContactDetail } = useUserNavigation()
 
@@ -180,7 +253,19 @@ const Table = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const hoverTimer = useRef<NodeJS.Timeout | null>(null)
 
-  // Cargar datos desde user.json
+  /**
+   * CARGA DE DATOS
+   * 
+   * Efecto que carga los datos de contactos desde el archivo JSON estático.
+   * Transforma la estructura de datos para que coincida con los tipos TypeScript.
+   * 
+   * FLUJO:
+   * 1. Marca como cargando
+   * 2. Hace fetch del archivo user.json
+   * 3. Transforma cada usuario al formato esperado
+   * 4. Maneja errores de red o parsing
+   * 5. Actualiza el estado con los datos
+   */
   useEffect(() => {
     setLoading(true)
     fetch('/user.json')
@@ -214,6 +299,24 @@ const Table = () => {
       })
   }, [])
 
+  /**
+   * FILTRADO Y ORDENAMIENTO
+   * 
+   * Memo que aplica filtros y ordenamiento a los datos de contactos.
+   * Se ejecuta automáticamente cuando cambian los filtros o datos.
+   * 
+   * FILTROS APLICADOS:
+   * - Búsqueda global: nombre, apellido, email
+   * - Filtro por nombre: búsqueda específica en nombre/apellido
+   * - Filtro por email: búsqueda específica en email
+   * - Filtro por tipo: categoría del contacto
+   * - Filtro por estado: activo/inactivo
+   * 
+   * ORDENAMIENTO:
+   * - Soporte para múltiples columnas
+   * - Dirección ascendente/descendente
+   * - Manejo de valores nulos/undefined
+   */
   const filteredAndSortedRows = useMemo(() => {
     const result = rowsData.filter(row => {
       const matchesGlobal =
@@ -281,7 +384,14 @@ const Table = () => {
     return result
   }, [rowsData, globalSearch, nameFilter, emailFilter, typeFilter, statusFilter, sortConfig])
 
-  // Manejador para el ordenamiento
+  /**
+   * MANEJADOR DE ORDENAMIENTO
+   * 
+   * Función que maneja el ordenamiento de columnas con ciclo:
+   * ascendente -> descendente -> sin ordenamiento
+   * 
+   * @param column - Columna a ordenar
+   */
   const handleSort = (column: SortColumn) => {
     setSortConfig(prev => {
       if (prev.column === column) {
@@ -296,7 +406,15 @@ const Table = () => {
     })
   }
 
-  // Función para renderizar el icono de ordenamiento
+  /**
+   * RENDERIZADO DE ICONOS DE ORDENAMIENTO
+   * 
+   * Función que renderiza los iconos visuales para indicar
+   * el estado de ordenamiento de cada columna.
+   * 
+   * @param column - Columna para la cual renderizar el icono
+   * @returns JSX del icono correspondiente
+   */
   const iconBaseClass = 'text-lg align-middle'
 
   const renderSortIcon = (column: SortColumn) => {
@@ -312,8 +430,13 @@ const Table = () => {
   }
 
   /**
-   * Maneja el hover sobre la celda de usuario.
-   * Muestra el card flotante y lo oculta con retardo al salir.
+   * MANEJADOR DE HOVER
+   * 
+   * Maneja el hover sobre la celda de usuario con retardo para
+   * evitar parpadeos y mejorar la experiencia de usuario.
+   * 
+   * @param userId - ID del usuario o null para ocultar
+   * @param event - Evento del mouse para posicionamiento
    */
   const handleUserHover = (userId: string | null, event?: React.MouseEvent<HTMLElement>) => {
     if (hoverTimer.current) {
@@ -331,6 +454,7 @@ const Table = () => {
     }
   }
 
+  // Estados de carga y error
   if (loading) {
     return (
       <Box display='flex' justifyContent='center' alignItems='center' sx={{ p: 4, minHeight: 300 }}>
@@ -354,7 +478,7 @@ const Table = () => {
   }
 
   // =======================
-  // Renderizado principal
+  // RENDERIZADO PRINCIPAL
   // =======================
   return (
     <>

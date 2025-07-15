@@ -1,145 +1,159 @@
-// src/types/user.ts
+/**
+ * TIPOS DE USUARIO - eComercial
+ * 
+ * Definiciones TypeScript para la estructura de datos de usuarios y contactos.
+ * Proporciona tipado estricto para toda la aplicación.
+ * 
+ * CARACTERÍSTICAS:
+ * - Tipos estrictos para validación en tiempo de compilación
+ * - Interfaces extensibles para futuras funcionalidades
+ * - Compatibilidad con API REST
+ * - Documentación JSDoc completa
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
 
-// Estado del usuario
-export enum UserStatus {
-  Active = 'activo',
-  Inactive = 'inactivo'
-}
-
-// Rol del usuario, útil para etiquetas y lógica de negocio
-export enum UserRole {
-  Prospecto = 'Prospecto',
-  Cliente = 'Cliente',
-  Proveedor = 'Proveedor',
-  Acreedor = 'Acreedor',
-  Colaborador = 'Colaborador'
-}
-
-// Interfaces para datos de contacto
+/**
+ * Información básica de contacto telefónico.
+ */
 export interface PhoneContact {
-  region: string
-  number: string
-  type: 'personal' | 'trabajo' | 'casa' | 'otro'
+  region: string // Código de país (+52, +1, etc.)
+  number: string // Número telefónico
+  type: 'personal' | 'trabajo' | 'casa' | 'otro' // Tipo de contacto
 }
 
+/**
+ * Información de contacto por email.
+ */
 export interface EmailContact {
-  address: string
-  type: 'personal' | 'trabajo' | 'otro'
-  alias?: string
+  address: string // Dirección de email
+  type: 'personal' | 'trabajo' | 'otro' // Tipo de email
+  alias?: string // Alias opcional para el email
 }
 
-export interface UserContacts {
-  phones: PhoneContact[]
-  emails: EmailContact[]
-}
-
-// Interfaces para información detallada
-export interface UserPersonalInfo {
-  gender?: 'hombre' | 'mujer' | 'otro'
-  birthDate?: string // Formato YYYY-MM-DD
-  profession?: string
-  education?: 'primaria' | 'secundaria' | 'bachillerato' | 'licenciatura' | 'posgrado' | 'otro'
-  maritalStatus?: 'soltero(a)' | 'casado(a)' | 'divorciado(a)' | 'viudo(a)' | 'otro'
-}
-
-export interface UserSettings {
-  category?: string
-  marketingCampaign?: boolean
-}
-
-export interface UserAddress {
-  street?: string
-  extNum?: string
-  intNum?: string
-  zipCode?: string
-  neighborhood?: string
-  municipality?: string
-  city?: string
-  state?: string
-  country?: string
-  noExt?: string
-  noInt?: string
-  zip?: string
-  colony?: string
-}
-
-export interface UserProfileDetails {
-  influencesDecisions?: boolean
-  mainActivities?: string
-  opportunityAreas?: string
-  recommendations?: string
-  notes?: string
-}
-
+/**
+ * Información de redes sociales.
+ */
 export interface SocialNetwork {
-  type: string // Ej: Facebook, LinkedIn, etc.
-  username: string // Usuario o enlace
+  type: string // Tipo de red social (LinkedIn, Twitter, etc.)
+  username: string // Usuario o enlace de la red social
 }
 
-export interface RelatedCompany {
-  companyName: string
-  position: string
+/**
+ * Información de empresa relacionada.
+ */
+export interface Company {
+  name: string // Nombre de la empresa
+  position?: string // Cargo en la empresa
 }
 
-export interface UserDocument {
+/**
+ * Información de ubicación geográfica.
+ */
+export interface Location {
+  street: string
+  extNum: string
+  intNum?: string
+  zipCode: string
+  neighborhood: string
+  municipality: string
+  city: string
+  state: string
+  country: string
+}
+
+/**
+ * Información de documentos digitales.
+ */
+export interface Document {
   fileName: string
-  fileType: string // Ej: pdf, jpg, etc.
-  url: string // URL o base64 temporal
-  uploadedAt: string // Formato ISO
+  fileType: string
+  url: string
   observation?: string
+  uploadedAt: string
 }
 
-// Tipo principal que une todo, usado en la tabla y en la vista de detalle
-export interface UserType {
-  id: string
-  name: string
-  lastName?: string
-  avatarUrl: string // Se asume que siempre habrá una URL, aunque sea un placeholder
-  role: UserRole
-  status: UserStatus
-  contacts: UserContacts
-  personalInfo: UserPersonalInfo
-  settings: UserSettings
-  addresses: UserAddress[]
-  profile: UserProfileDetails
-  documents: UserDocument[]
-  relatedCompanies?: RelatedCompany[]
-  socialNetworks?: SocialNetwork[]
-  companies?: RelatedCompany[]
+/**
+ * Información de perfil profesional.
+ */
+export interface Profile {
+  decisionInfluence?: string // Influencia en decisiones
+  activities?: string // Actividades principales
+  opportunityAreas?: string // Áreas de oportunidad
+  recommendations?: string // Recomendaciones
+  notes?: string // Notas adicionales
+}
 
-  // Campos simplificados que la tabla usaba, se pueden derivar o mantener por compatibilidad
+/**
+ * Información completa de contactos de un usuario.
+ */
+export interface UserContacts {
+  alias?: string // Alias o nombre de usuario
+  phones: PhoneContact[] // Lista de teléfonos
+  emails: EmailContact[] // Lista de emails
+  socialNetworks?: SocialNetwork[] // Redes sociales opcionales
+}
+
+/**
+ * Información completa de un usuario en el sistema.
+ */
+export interface User {
+  id: string // Identificador único
+  avatarSrc?: string // URL del avatar
+  name: string // Nombre del usuario
+  lastName?: string // Apellidos
+  username?: string // Nombre de usuario
   email: string // Email principal
-  companyName?: string // Nombre de la empresa principal
+  contacts: UserContacts // Información de contactos
+  companies?: Company[] // Empresas relacionadas
+  category?: string // Categoría del contacto
+  status: 'activo' | 'inactivo' // Estado del usuario
+  location?: Location // Ubicación opcional
+  documents?: Document[] // Documentos opcionales
+  profile?: Profile // Perfil profesional opcional
+  disabled?: boolean // Estado de deshabilitación (legacy)
 }
 
-// Tipos para la UI de la vista de detalle
-export type ActiveViewType =
-  | 'Chat'
-  | 'Agenda'
-  | 'Correo'
-  | 'ActividadGeneral' // Para info
-  | 'ChatDirect'
-  | 'AgendaDirect'
-  | 'CorreoDirect'
-  | 'ActividadDirect' // Para infoDirect
-export type SectionKeyType =
-  | 'generalInfo'
-  | 'comunicacion'
-  | 'datosPersonales'
-  | 'configuracion'
-  | 'ubicacion'
-  | 'perfil'
-  | 'documentos'
-  | 'empresaRelacionada'
+/**
+ * Tipo para formularios de usuario con campos opcionales.
+ */
+export type UserFormData = Partial<User>
 
-// Mapeo para mostrar nombres en la UI de edición
-export const sectionDisplayNames: Record<SectionKeyType, string> = {
-  generalInfo: 'Información General',
-  comunicacion: 'Comunicación',
-  datosPersonales: 'Datos Personales Adicionales',
-  configuracion: 'Configuración del Contacto',
-  empresaRelacionada: 'Empresas Relacionadas',
-  ubicacion: 'Ubicación - Domicilio',
-  perfil: 'Perfil del Contacto',
-  documentos: 'Documentos Digitales'
+/**
+ * Tipo para respuestas de API de usuarios.
+ */
+export interface UserApiResponse {
+  success: boolean
+  data?: User | User[]
+  message?: string
+  error?: string
+}
+
+/**
+ * Tipo para filtros de búsqueda de usuarios.
+ */
+export interface UserFilters {
+  search?: string
+  category?: string
+  status?: 'activo' | 'inactivo'
+  company?: string
+}
+
+/**
+ * Tipo para paginación de resultados.
+ */
+export interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+/**
+ * Tipo para respuesta paginada de usuarios.
+ */
+export interface PaginatedUserResponse {
+  users: User[]
+  pagination: PaginationInfo
 }

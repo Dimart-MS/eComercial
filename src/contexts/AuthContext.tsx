@@ -1,3 +1,20 @@
+/**
+ * CONTEXTO DE AUTENTICACIÓN - eComercial
+ * 
+ * Gestión centralizada del estado de autenticación con persistencia local
+ * y sincronización entre pestañas del navegador.
+ * 
+ * CARACTERÍSTICAS:
+ * - Estado global de usuario y token
+ * - Persistencia en localStorage
+ * - Sincronización entre pestañas
+ * - Autenticación mock para desarrollo
+ * - Redirección automática
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+
 'use client'
 
 import React, { createContext, useState, useEffect, useCallback } from 'react'
@@ -8,31 +25,27 @@ import type { User, AuthContextType } from '../types/auth'
 import { ROUTES, LOCAL_STORAGE_KEYS, IMAGES } from '../constants/index'
 
 /**
- * Contexto de autenticación que proporciona el estado y las funciones de autenticación
- * a toda la aplicación.
+ * Contexto de autenticación que proporciona estado y funciones de autenticación.
  */
 export const AuthContext = createContext<AuthContextType | null>(null)
 
 /**
- * Proveedor del contexto de autenticación que maneja el estado de autenticación
- * y proporciona funciones para login, registro, logout y recuperación de contraseña.
+ * Proveedor del contexto de autenticación.
  */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Estados
+  // Estados principales del contexto
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  /**
-   * Limpia el mensaje de error actual
-   */
+  // Limpia el mensaje de error actual
   const clearError = () => setError(null)
 
   /**
-   * Maneja el proceso de cierre de sesión
-   * Limpia el estado local y el almacenamiento
+   * Maneja el proceso de cierre de sesión.
+   * Limpia estado local, localStorage y redirige a login.
    */
   const handleLogout = useCallback(() => {
     setUser(null)
@@ -46,10 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   /**
-   * Efecto para cargar el estado de autenticación al montar el componente
-   * Verifica si hay un token y usuario almacenados
+   * Carga el estado de autenticación al montar el componente.
+   * Verifica token y usuario en localStorage.
    */
-
   useEffect(() => {
     const storedToken = localStorage.getItem(LOCAL_STORAGE_KEYS.TOKEN)
     const storedUser = localStorage.getItem(LOCAL_STORAGE_KEYS.USER)
@@ -71,8 +83,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [handleLogout])
 
   /**
-   * Efecto para manejar cambios en el almacenamiento entre pestañas
-   * Permite sincronizar el estado de autenticación entre diferentes pestañas
+   * Maneja cambios en localStorage entre pestañas.
+   * Sincroniza el estado de autenticación.
    */
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
@@ -80,9 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         event.key === LOCAL_STORAGE_KEYS.LOGOUT_EVENT ||
         (event.key === LOCAL_STORAGE_KEYS.TOKEN && !event.newValue)
       ) {
-        // Si se eliminó el token o se disparó el evento de logout desde otra pestaña
         if (token) {
-          // solo cierra sesión si actualmente está conectado en esta pestaña
           setUser(null)
           setToken(null)
           router.push(ROUTES.LOGIN)
@@ -98,9 +108,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [token, router])
 
   /**
-   * Maneja el proceso de inicio de sesión
-   * @param emailOrUsername - Email o nombre de usuario
-   * @param password - Contraseña
+   * Maneja el proceso de inicio de sesión.
+   * Implementa autenticación mock para desarrollo.
+   * 
+   * Credenciales mock: admin@ecomercial.com / Admin123!
    */
   const login = async (emailOrUsername: string, password: string): Promise<void> => {
     setIsLoading(true)
@@ -136,10 +147,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   /**
-   * Maneja el proceso de registro de usuario
-   * @param username - Nombre de usuario
-   * @param email - Email
-   * @param password - Contraseña
+   * Maneja el proceso de registro de usuario.
+   * Implementación mock para desarrollo.
    */
   const register = async (username: string, email: string, password: string): Promise<void> => {
     setIsLoading(true)
@@ -156,36 +165,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  /**
-   * Maneja el proceso de cierre de sesión
-   */
+  // Wrapper que llama a handleLogout
   const logout = () => {
     handleLogout()
   }
 
   /**
-   * Maneja el proceso de recuperación de contraseña
-   * @param email - Email del usuario
+   * Maneja la recuperación de contraseña.
+   * Valida email y simula envío de enlace.
    */
   const forgotPassword = async (email: string): Promise<void> => {
     setIsLoading(true)
     setError(null)
 
-    // Validación de correo vacío
     if (!email.trim()) {
       setIsLoading(false)
       setError('El correo no puede estar vacío')
-
       return
     }
 
-    // Validación de formato de correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!emailRegex.test(email)) {
       setIsLoading(false)
       setError('El formato del correo es inválido')
-
       return
     }
 

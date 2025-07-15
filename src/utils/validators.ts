@@ -1,6 +1,26 @@
+/**
+ * SISTEMA DE VALIDACIÓN UNIFICADO - eComercial
+ * 
+ * Centraliza todas las validaciones del proyecto siguiendo el principio DRY.
+ * Permite reutilización, mantenibilidad y consistencia en toda la aplicación.
+ * 
+ * ARQUITECTURA:
+ * - REGEX_PATTERNS: Patrones base reutilizables
+ * - Validadores atómicos: Funciones que retornan esquemas Zod
+ * - Esquemas compuestos: Combinaciones de validadores atómicos
+ * - Tipos TypeScript: Inferidos automáticamente
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+
 import { z } from 'zod'
 
-// Patrones de validación genéricos y completos
+/**
+ * PATRONES DE VALIDACIÓN BASE
+ * 
+ * Patrones regex optimizados para rendimiento y compatibilidad internacional.
+ */
 export const REGEX_PATTERNS = {
   PASSWORD_UPPERCASE: /[A-Z]/,
   PASSWORD_LOWERCASE: /[a-z]/,
@@ -9,15 +29,25 @@ export const REGEX_PATTERNS = {
   ONLY_NUMBERS: /^[0-9]+$/,
   ONLY_LETTERS: /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/,
   ZIP_CODE: /^[0-9]{5,6}$/,
-  RFC: /^([A-ZÑ&]{3,4})\d{6}(?:[A-Z\d]{3})?$/,
-  CURP: /^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z\d]{2}$/,
   FILE_TYPE: /^(application\/pdf|image\/jpeg|image\/png|application\/msword|application\/vnd\.ms-excel|otro)$/,
+  USERNAME: /^[a-zA-Z0-9_.-]+$/,
+  EMAIL: /^[^\s@\d][^\s@]*@[^\s@]+\.[^\s@]+$/
 }
 
-// Validadores atómicos y reutilizables
-export const requiredString = (fieldName = 'Este campo') =>
-  z.string().trim().min(1, { message: `${fieldName} es requerido.` })
+/**
+ * VALIDADORES ATÓMICOS Y REUTILIZABLES
+ * 
+ * Funciones que crean esquemas Zod básicos combinables para validaciones complejas.
+ */
 
+// Validador para campos de texto requeridos
+export const requiredString = (fieldName = 'Este campo') =>
+  z
+    .string()
+    .trim()
+    .min(1, { message: `${fieldName} es requerido.` })
+
+// Validador para campos de texto opcionales
 export const optionalString = (maxLength?: number, fieldName = 'Este campo') => {
   let schema = z.string().trim()
 
@@ -28,27 +58,34 @@ export const optionalString = (maxLength?: number, fieldName = 'Este campo') => 
   return schema.optional()
 }
 
+// Validador para emails con formato estándar
 export const email = (fieldName = 'Email') =>
-  requiredString(fieldName).email({ message: 'Formato de email inválido.' })
+  requiredString(fieldName)
+    .email({ message: 'Formato de email inválido.' })
+    .refine(val => REGEX_PATTERNS.EMAIL.test(val), { message: 'Formato de email inválido.' })
 
+// Validador para teléfonos internacionales (10-15 dígitos)
 export const phone = (fieldName = 'Teléfono') =>
   requiredString(fieldName)
     .regex(REGEX_PATTERNS.ONLY_NUMBERS, { message: 'Solo números.' })
     .min(10, { message: 'Mínimo 10 dígitos.' })
     .max(15, { message: 'Máximo 15 dígitos.' })
 
+// Validador para nombres con caracteres acentuados
 export const name = (fieldName = 'Nombre') =>
   requiredString(fieldName)
     .min(2, { message: 'Mínimo 2 caracteres.' })
     .max(60, { message: 'Máximo 60 caracteres.' })
     .regex(REGEX_PATTERNS.ONLY_LETTERS, { message: 'Solo letras y espacios.' })
 
+// Validador para usernames alfanuméricos
 export const username = (fieldName = 'Usuario') =>
   requiredString(fieldName)
     .min(3, { message: 'Mínimo 3 caracteres.' })
     .max(30, { message: 'Máximo 30 caracteres.' })
-    .regex(/^[a-zA-Z0-9_.-]+$/, { message: 'Caracteres inválidos.' })
+    .regex(REGEX_PATTERNS.USERNAME, { message: 'Solo letras, números, puntos, guiones o guiones bajos.' })
 
+// Validador para contraseñas seguras con políticas estándar
 export const password = (fieldName = 'Contraseña') =>
   requiredString(fieldName)
     .min(8, { message: 'Debe tener al menos 8 caracteres.' })
@@ -57,22 +94,24 @@ export const password = (fieldName = 'Contraseña') =>
     .regex(REGEX_PATTERNS.PASSWORD_DIGIT, { message: 'Debe contener al menos un número (0-9).' })
     .regex(REGEX_PATTERNS.PASSWORD_SPECIAL_CHAR, { message: 'Debe contener al menos un carácter especial (!@#...).' })
 
+// Validador para códigos postales (5-6 dígitos)
 export const zipCode = (fieldName = 'Código Postal') =>
   requiredString(fieldName).regex(REGEX_PATTERNS.ZIP_CODE, { message: 'Código postal inválido.' })
 
-export const rfc = (fieldName = 'RFC') =>
-  requiredString(fieldName).regex(REGEX_PATTERNS.RFC, { message: 'RFC inválido.' })
-
-export const curp = (fieldName = 'CURP') =>
-  requiredString(fieldName).regex(REGEX_PATTERNS.CURP, { message: 'CURP inválido.' })
-
+// Validador para fechas válidas
 export const date = (fieldName = 'Fecha') =>
   requiredString(fieldName).refine(val => !isNaN(Date.parse(val)), { message: 'Fecha inválida.' })
 
-export const booleanField = (fieldName = 'Valor') =>
-  z.boolean({ required_error: `${fieldName} es requerido.` })
+// Validador para campos booleanos
+export const booleanField = (fieldName = 'Valor') => z.boolean({ required_error: `${fieldName} es requerido.` })
 
-// Ejemplo de uso en esquemas para cualquier módulo
+/**
+ * ESQUEMAS COMPUESTOS
+ * 
+ * Esquemas que combinan validadores atómicos para estructuras complejas.
+ */
+
+// Esquema para direcciones completas
 export const addressSchema = z.object({
   street: requiredString('Calle'),
   extNum: requiredString('No. Ext.').regex(REGEX_PATTERNS.ONLY_NUMBERS, { message: 'Solo números.' }),
@@ -82,27 +121,64 @@ export const addressSchema = z.object({
   municipality: requiredString('Municipio'),
   city: requiredString('Ciudad'),
   state: requiredString('Estado'),
-  country: requiredString('País'),
+  country: requiredString('País')
 })
 
-// Esquema para documentos digitales (solo valida campos de archivo, no RFC/CURP)
+// Esquema para documentos digitales
 export const documentSchema = z.object({
   fileName: requiredString('Nombre del archivo').max(60, { message: 'Máximo 60 caracteres.' }),
-  fileType: requiredString('Tipo de archivo').regex(REGEX_PATTERNS.FILE_TYPE, { message: 'Tipo de archivo no permitido.' }),
+  fileType: requiredString('Tipo de archivo').regex(REGEX_PATTERNS.FILE_TYPE, {
+    message: 'Tipo de archivo no permitido.'
+  }),
   url: requiredString('Archivo'),
   observation: optionalString(200, 'Observaciones'),
   uploadedAt: date('Fecha de carga')
 })
 
-export const registrationSchema = z.object({
-  username: username(),
-  email: email(),
-  password: password(),
-  confirmPassword: requiredString('Confirmar contraseña'),
-  agreeTerms: z.boolean().refine(value => value === true, { message: 'Debes aceptar los términos y condiciones.' }),
-}).refine(data => data.password === data.confirmPassword, {
-  message: 'Las contraseñas no coinciden.',
-  path: ['confirmPassword'],
+/**
+ * VALIDADORES ESPECIALIZADOS
+ * 
+ * Validadores que combinan múltiples tipos para casos específicos.
+ */
+
+// Validador para login que acepta email o username
+export const emailOrUsername = (fieldName = 'Email o usuario') =>
+  z
+    .union([email(fieldName), username(fieldName)])
+    .refine(val => typeof val === 'string', { message: `${fieldName} inválido.` })
+
+/**
+ * ESQUEMAS DE FORMULARIOS COMPLETOS
+ * 
+ * Esquemas que representan formularios completos de la aplicación.
+ */
+
+// Esquema para registro de usuarios
+export const registrationSchema = z
+  .object({
+    username: username(),
+    email: email(),
+    password: password(),
+    confirmPassword: requiredString('Confirmar contraseña'),
+    agreeTerms: z.boolean().refine(value => value === true, { message: 'Debes aceptar los términos y condiciones.' })
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Las contraseñas no coinciden.',
+    path: ['confirmPassword']
+  })
+
+// Esquema para login de usuarios
+export const loginSchema = z.object({
+  emailOrUsername: emailOrUsername(),
+  password: password()
 })
+
+/**
+ * TIPOS TYPESCRIPT INFERIDOS
+ * 
+ * Tipos generados automáticamente de los esquemas Zod.
+ */
+
+export type LoginData = z.infer<typeof loginSchema>
 
 export type RegistrationData = z.infer<typeof registrationSchema>

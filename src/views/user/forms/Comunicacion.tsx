@@ -1,3 +1,20 @@
+/**
+ * FORMULARIO DE COMUNICACIÓN - eComercial
+ * 
+ * Formulario dinámico para gestión de información de comunicación de contactos.
+ * Permite agregar, editar y eliminar teléfonos, emails y redes sociales.
+ * 
+ * CARACTERÍSTICAS:
+ * - Campos dinámicos con agregar/eliminar
+ * - Validación en tiempo real con Zod
+ * - Dropdown de países con búsqueda
+ * - Manejo de estados de error por campo
+ * - Preparado para integración con API
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
@@ -8,7 +25,9 @@ import { email as emailValidation, phone as phoneValidation, username as usernam
 import { ChevronDownIcon } from '@/components/icons'
 import type { UserContacts, PhoneContact, EmailContact, SocialNetwork } from '@/types/user'
 
-// Lista de países completa y restaurada
+/**
+ * Lista de países con códigos de región y banderas.
+ */
 const COUNTRY_OPTIONS = [
   { name: 'México', code: '+52', flag: '🇲🇽' },
   { name: 'Estados Unidos', code: '+1', flag: '🇺🇸' },
@@ -20,6 +39,9 @@ const COUNTRY_OPTIONS = [
   // ... (la lista completa original está aquí)
 ]
 
+/**
+ * Propiedades del componente
+ */
 interface EditComunicacionFormProps {
   data: UserContacts & { socialNetworks?: SocialNetwork[] }
   onChange: (type: 'phones' | 'emails' | 'socialNetworks', index: number, field: any, value: string) => void
@@ -27,17 +49,27 @@ interface EditComunicacionFormProps {
   onRemove?: (type: 'phones' | 'emails' | 'socialNetworks', index: number) => void
 }
 
+/**
+ * Estilos CSS reutilizables
+ */
 const inputClass =
   'block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm text-gray-900'
 const selectClass = `${inputClass} appearance-none`
 const errorTextClass = 'text-red-500 text-xs mt-1'
 
+/**
+ * Formulario dinámico para gestión de información de comunicación.
+ */
 const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onChange, onAdd, onRemove }) => {
+  // Estados para manejo de errores y UI
   const [errors, setErrors] = useState<any>({ phones: [], emails: [], socialNetworks: [] })
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState<number | null>(null)
   const [countrySearch, setCountrySearch] = useState('')
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  /**
+   * Maneja el cierre del dropdown de países cuando se hace click fuera.
+   */
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -50,6 +82,9 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  /**
+   * Valida campos específicos usando esquemas Zod y actualiza errores.
+   */
   const validateField = (type: string, index: number, field: string, value: any) => {
     let schema: z.ZodSchema<any> | null = null
 
@@ -76,6 +111,9 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
     })
   }
 
+  /**
+   * Maneja los cambios en los campos del formulario.
+   */
   const handleInputChange = (type: any, index: number, field: any, value: string) => {
     onChange(type, index, field, value)
     validateField(type, index, field, value)
@@ -83,7 +121,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
 
   return (
     <div className='space-y-6'>
-      {/* Teléfonos - Restaurado COMPLETAMENTE */}
+      {/* SECCIÓN: TELÉFONOS */}
       <fieldset className='border border-gray-300 p-4 rounded-md'>
         <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
           Teléfono
@@ -95,6 +133,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
           {data.phones?.map((phone, idx) => (
             <div key={idx}>
               <div className='flex items-stretch gap-2 relative'>
+                {/* Dropdown de país con búsqueda */}
                 <div className='relative' ref={dropdownRef}>
                   <button
                     type='button'
@@ -134,6 +173,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                     </ul>
                   )}
                 </div>
+                {/* Campo de número de teléfono */}
                 <input
                   type='tel'
                   value={phone.number}
@@ -141,6 +181,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   className={`${inputClass} flex-grow rounded-none ${errors.phones?.[idx]?.number ? 'border-red-500' : ''}`}
                   placeholder='Número'
                 />
+                {/* Selector de tipo de teléfono */}
                 <select
                   value={phone.type}
                   onChange={e => handleInputChange('phones', idx, 'type', e.target.value)}
@@ -151,6 +192,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   <option value='casa'>Casa</option>
                   <option value='otro'>Otro</option>
                 </select>
+                {/* Botón eliminar (solo si hay más de un teléfono) */}
                 {data.phones.length > 1 && (
                   <button
                     type='button'
@@ -161,13 +203,14 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   </button>
                 )}
               </div>
+              {/* Mensaje de error para el campo */}
               {errors.phones?.[idx]?.number && <p className={errorTextClass}>{errors.phones[idx].number}</p>}
             </div>
           ))}
         </div>
       </fieldset>
 
-      {/* Correos - Restaurado COMPLETAMENTE */}
+      {/* SECCIÓN: CORREOS ELECTRÓNICOS */}
       <fieldset className='border border-gray-300 p-4 rounded-md'>
         <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
           Correos
@@ -179,6 +222,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
           {data.emails?.map((email, idx) => (
             <div key={idx}>
               <div className='flex items-center gap-2'>
+                {/* Campo de dirección de email */}
                 <input
                   type='email'
                   value={email.address}
@@ -186,6 +230,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   className={`${inputClass} ${errors.emails?.[idx]?.address ? 'border-red-500' : ''}`}
                   placeholder='usuario@ejemplo.com'
                 />
+                {/* Selector de tipo de email */}
                 <select
                   value={email.type}
                   onChange={e => handleInputChange('emails', idx, 'type', e.target.value)}
@@ -195,6 +240,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   <option value='trabajo'>Trabajo</option>
                   <option value='otro'>Otro</option>
                 </select>
+                {/* Campo de alias opcional */}
                 <input
                   type='text'
                   value={email.alias || ''}
@@ -202,6 +248,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   className={`${inputClass} max-w-[120px]`}
                   placeholder='Alias'
                 />
+                {/* Botón eliminar (solo si hay más de un email) */}
                 {data.emails.length > 1 && (
                   <button
                     type='button'
@@ -212,13 +259,14 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   </button>
                 )}
               </div>
+              {/* Mensaje de error para el campo */}
               {errors.emails?.[idx]?.address && <p className={errorTextClass}>{errors.emails[idx].address}</p>}
             </div>
           ))}
         </div>
       </fieldset>
 
-      {/* Redes Sociales - Restaurado COMPLETAMENTE */}
+      {/* SECCIÓN: REDES SOCIALES */}
       <fieldset className='border border-gray-300 p-4 rounded-md'>
         <legend className='text-sm font-medium text-gray-700 px-1 flex items-center'>
           Redes sociales
@@ -230,6 +278,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
           {data.socialNetworks?.map((sn, idx) => (
             <div key={idx}>
               <div className='flex items-center gap-2'>
+                {/* Campo de tipo de red social */}
                 <input
                   type='text'
                   value={sn.type}
@@ -237,6 +286,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   className={`${inputClass} max-w-[120px]`}
                   placeholder='Tipo (Ej: LinkedIn)'
                 />
+                {/* Campo de username o enlace */}
                 <input
                   type='text'
                   value={sn.username}
@@ -244,7 +294,8 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   className={`${inputClass} ${errors.socialNetworks?.[idx]?.username ? 'border-red-500' : ''}`}
                   placeholder='Usuario o enlace'
                 />
-                {data.socialNetworks.length > 1 && (
+                {/* Botón eliminar (solo si hay más de una red social) */}
+                {data.socialNetworks && data.socialNetworks.length > 1 && (
                   <button
                     type='button'
                     className='ml-2 text-red-500 font-bold'
@@ -254,6 +305,7 @@ const EditComunicacionForm: React.FC<EditComunicacionFormProps> = ({ data, onCha
                   </button>
                 )}
               </div>
+              {/* Mensaje de error para el campo */}
               {errors.socialNetworks?.[idx]?.username && (
                 <p className={errorTextClass}>{errors.socialNetworks[idx].username}</p>
               )}

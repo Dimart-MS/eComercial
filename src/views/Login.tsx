@@ -36,7 +36,8 @@ import AuthLayout from '@components/auth/AuthLayout'
 import { AuthContext } from '../contexts/AuthContext'
 
 // Constants Imports
-import { TEXT_CONTENT, ROUTES } from '@/constants'
+// import ROUTES from '@/constants' and TEXT_CONTENT from its correct location
+import { ROUTES } from '@/constants'
 
 const Login = ({ mode }: { mode: Mode }) => {
   // Vars
@@ -87,8 +88,8 @@ const Login = ({ mode }: { mode: Mode }) => {
     <AuthLayout illustrationSrc={authBackground} pageTitle='Login'>
       <div className='flex flex-col gap-5'>
         <div>
-          <Typography variant='h4'>{TEXT_CONTENT.LOGIN.TITLE}</Typography>
-          <Typography className='mbs-1'>{TEXT_CONTENT.LOGIN.SUBTITLE}</Typography>
+          <Typography variant='h4'>login</Typography>
+          <Typography className='mbs-1'>Please sign-in to your account and start the adventure</Typography>
         </div>
 
         {errors.root?.serverError && (
@@ -106,7 +107,7 @@ const Login = ({ mode }: { mode: Mode }) => {
                 {...field}
                 autoFocus
                 fullWidth
-                label={TEXT_CONTENT.LOGIN.EMAIL_LABEL}
+                label='correo o usuario'
                 error={!!errors.emailOrUsername}
                 helperText={errors.emailOrUsername?.message}
                 onChange={e => {
@@ -124,7 +125,7 @@ const Login = ({ mode }: { mode: Mode }) => {
               <TextField
                 {...field}
                 fullWidth
-                label={TEXT_CONTENT.LOGIN.PASSWORD_LABEL}
+                label='contraseña'
                 id='outlined-adornment-password'
                 type={isPasswordShown ? 'text' : 'password'}
                 error={!!errors.password}
@@ -152,24 +153,24 @@ const Login = ({ mode }: { mode: Mode }) => {
           />
 
           <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-            <FormControlLabel control={<Checkbox />} label={TEXT_CONTENT.LOGIN.REMEMBER_ME} />
+            <FormControlLabel control={<Checkbox />} label='recuerdame' />
             <Typography className='text-end' color='primary' component={Link} href={ROUTES.FORGOT_PASSWORD}>
-              {TEXT_CONTENT.LOGIN.FORGOT_PASSWORD}
+              olvide la contraseña
             </Typography>
           </div>
 
           <Button fullWidth variant='contained' type='submit' disabled={auth?.isLoading}>
-            {auth?.isLoading ? 'Loading...' : TEXT_CONTENT.LOGIN.LOGIN_BUTTON}
+            {auth?.isLoading ? 'Loading...' : 'iniciar'}
           </Button>
 
           <div className='flex justify-center items-center flex-wrap gap-2'>
-            <Typography>{TEXT_CONTENT.LOGIN.NO_ACCOUNT}</Typography>
+            <Typography>no tengo cuenta</Typography>
             <Typography component={Link} href={ROUTES.REGISTER} color='primary'>
-              {TEXT_CONTENT.LOGIN.REGISTER_LINK}
+              registrarse
             </Typography>
           </div>
 
-          <Divider className='gap-3'>{TEXT_CONTENT.LOGIN.OR}</Divider>
+          <Divider className='gap-3'>iniciar o</Divider>
 
           <div className='flex justify-center items-center gap-2'>
             <IconButton size='small' className='text-facebook'>

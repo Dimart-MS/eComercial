@@ -1,133 +1,137 @@
-'use client'
+/**
+ * CONSTANTES GLOBALES - eComercial
+ * 
+ * Centraliza todas las constantes utilizadas en la aplicación.
+ * Facilita mantenimiento y evita valores hardcodeados.
+ * 
+ * CARACTERÍSTICAS:
+ * - Valores centralizados para fácil modificación
+ * - Agrupación lógica por funcionalidad
+ * - Compatibilidad con TypeScript
+ * - Preparado para internacionalización
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
 
-import React from 'react'
-
-import { FaInstagram, FaFacebook, FaSquareTwitter, FaLinkedin } from 'react-icons/fa6'
-
-import type { SocialLink } from '../types/auth'
-
+/**
+ * RUTAS DE LA APLICACIÓN
+ * 
+ * Definiciones de rutas para navegación interna.
+ */
 export const ROUTES = {
-  LOGIN: '/',
+  LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
-  PANEL: '/panel'
-}
+  PANEL: '/panel',
+  CONTACTOS: '/panel/contactos',
+  ACCOUNT_SETTINGS: '/panel/account-settings',
+  CARD_BASIC: '/panel/card-basic',
+  FORM_LAYOUTS: '/panel/form-layouts'
+} as const
 
-export const IMAGES = {
-  LOGO: '/images/logos/ecomercial-logo.png',
-  ILLUSTRATIONS: {
-    LOGIN: 'https://picsum.photos/seed/loginpage/600/700',
-    REGISTER: 'https://picsum.photos/seed/registerpage/600/700',
-    FORGOT_PASSWORD: 'https://picsum.photos/seed/forgotpage/600/700'
-  },
-  AVATAR: 'https://picsum.photos/seed/avatar/40/40'
-}
-
-export const TEXT_CONTENT = {
-  LOGIN: {
-    TITLE: '¡Bienvenido a eComercial! 👋',
-    SUBTITLE: 'Por favor, inicia sesión en tu cuenta',
-    EMAIL_LABEL: 'Email',
-    PASSWORD_LABEL: 'Contraseña',
-    REMEMBER_ME: 'Recordarme',
-    FORGOT_PASSWORD: '¿Olvidaste tu contraseña?',
-    LOGIN_BUTTON: 'Iniciar Sesión',
-    NO_ACCOUNT: '¿No tienes una cuenta?',
-    REGISTER_LINK: 'Crear una cuenta',
-    OR: 'o'
-  },
-  REGISTER: {
-    TITLE: '¡La aventura comienza aquí! 🚀',
-    SUBTITLE: '¡Haz que la gestión de tu aplicación sea fácil y divertida!',
-    USERNAME_LABEL: 'Nombre de usuario',
-    EMAIL_LABEL: 'Email',
-    PASSWORD_LABEL: 'Contraseña',
-    TERMS: 'Acepto los términos y condiciones',
-    REGISTER_BUTTON: 'Registrarse',
-    HAVE_ACCOUNT: '¿Ya tienes una cuenta?',
-    LOGIN_LINK: 'Iniciar sesión',
-    OR: 'o'
-  },
-  FORGOT_PASSWORD: {
-    TITLE: '¿Olvidaste tu contraseña? 🔒',
-    SUBTITLE: 'Ingresa tu email y te enviaremos instrucciones para restablecer tu contraseña',
-    EMAIL_LABEL: 'Email',
-    SEND_BUTTON: 'Enviar enlace',
-    BACK_TO_LOGIN: 'Volver al inicio de sesión'
-  },
-  SOCIAL_LINKS: [
-    { icon: 'ri-facebook-fill', href: 'https://facebook.com', label: 'Facebook', className: 'text-facebook' },
-    { icon: 'ri-twitter-fill', href: 'https://twitter.com', label: 'Twitter', className: 'text-twitter' },
-    { icon: 'ri-github-fill', href: 'https://github.com', label: 'Github', className: 'text-github' },
-    { icon: 'ri-linkedin-fill', href: 'https://linkedin.com', label: 'Linkedin', className: 'text-linkedin' }
-  ]
-}
-
-// Iconos de React
-export const EyeIcon: React.FC<{ className?: string }> = ({ className }) => <i className={`ri-eye-line ${className}`} />
-
-export const EyeSlashIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <i className={`ri-eye-off-line ${className}`} />
-)
-
-export const ChevronDownIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <i className={`ri-arrow-down-s-line ${className}`} />
-)
-
-export const LogoutIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <i className={`ri-logout-box-line ${className}`} />
-)
-
-export const ProfileIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <i className={`ri-user-3-line ${className}`} />
-)
-
-export const BillingIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <i className={`ri-bill-line ${className}`} />
-)
-
-// Enlaces sociales
-export const SOCIAL_LINKS: SocialLink[] = [
-  {
-    name: 'Instagram',
-    icon: <FaInstagram className='w-5 h-5' />,
-    color: '#E1306C',
-    href: 'https://instagram.com'
-  },
-  {
-    name: 'Facebook',
-    icon: <FaFacebook className='w-5 h-5' />,
-    color: '#1877F2',
-    href: 'https://facebook.com'
-  },
-  {
-    name: 'Twitter',
-    icon: <FaSquareTwitter className='w-5 h-5' />,
-    color: '#1DA1F2',
-    href: 'https://twitter.com'
-  },
-  {
-    name: 'LinkedIn',
-    icon: <FaLinkedin className='w-5 h-5' />,
-    color: '#0A66C2',
-    href: 'https://linkedin.com'
-  }
-]
-
-// Patrones de validación
-export const REGEX_PATTERNS = {
-  EMAIL: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-  PASSWORD_UPPERCASE: /[A-Z]/,
-  PASSWORD_LOWERCASE: /[a-z]/,
-  PASSWORD_DIGIT: /[0-9]/,
-  PASSWORD_SPECIAL_CHAR: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/
-}
-
-// Claves de localStorage
+/**
+ * CLAVES DE LOCAL STORAGE
+ * 
+ * Identificadores para datos persistentes en el navegador.
+ */
 export const LOCAL_STORAGE_KEYS = {
   TOKEN: 'ecomercial_token',
   USER: 'ecomercial_user',
-  THEME: 'ecomercial_theme',
-  LANGUAGE: 'ecomercial_language',
-  LOGOUT_EVENT: 'ecomercial_logout_event'
-}
+  LOGOUT_EVENT: 'ecomercial_logout_event',
+  THEME_MODE: 'ecomercial_theme_mode',
+  LANGUAGE: 'ecomercial_language'
+} as const
+
+/**
+ * RUTAS DE IMÁGENES
+ * 
+ * Referencias a imágenes estáticas del proyecto.
+ */
+export const IMAGES = {
+  AVATAR: '/images/avatars/1.png',
+  LOGO: '/images/logos/ecomercial-logo.png',
+  LOGO_DARK: '/images/logos/ecomercial-logo-dark.png',
+  FONDO: '/images/pages/fondo.png',
+  FONDO2: '/images/pages/fondo2.jpg'
+} as const
+
+/**
+ * CONFIGURACIÓN DE VALIDACIÓN
+ * 
+ * Límites y reglas para validación de formularios.
+ */
+export const VALIDATION_LIMITS = {
+  NAME_MIN: 2,
+  NAME_MAX: 60,
+  USERNAME_MIN: 3,
+  USERNAME_MAX: 30,
+  PASSWORD_MIN: 8,
+  PHONE_MIN: 10,
+  PHONE_MAX: 15,
+  ZIP_CODE_LENGTH: 5
+} as const
+
+/**
+ * MENSAJES DE ERROR
+ * 
+ * Mensajes estandarizados para errores de validación.
+ */
+export const ERROR_MESSAGES = {
+  REQUIRED: 'Este campo es requerido.',
+  INVALID_EMAIL: 'Formato de email inválido.',
+  PASSWORD_MISMATCH: 'Las contraseñas no coinciden.',
+  INVALID_PHONE: 'Formato de teléfono inválido.',
+  INVALID_ZIP_CODE: 'Código postal inválido.',
+  TERMS_REQUIRED: 'Debes aceptar los términos y condiciones.'
+} as const
+
+/**
+ * CONFIGURACIÓN DE PAGINACIÓN
+ * 
+ * Valores por defecto para paginación de tablas.
+ */
+export const PAGINATION_CONFIG = {
+  DEFAULT_PAGE_SIZE: 10,
+  PAGE_SIZE_OPTIONS: [5, 10, 25, 50],
+  MAX_PAGE_SIZE: 100
+} as const
+
+/**
+ * CONFIGURACIÓN DE TEMAS
+ * 
+ * Opciones de tema y colores de la aplicación.
+ */
+export const THEME_CONFIG = {
+  PRIMARY_COLOR: '#9155FD',
+  SECONDARY_COLOR: '#8A8D93',
+  SUCCESS_COLOR: '#56CA00',
+  ERROR_COLOR: '#FF4C51',
+  WARNING_COLOR: '#FFB400',
+  INFO_COLOR: '#16B1FF'
+} as const
+
+/**
+ * CONFIGURACIÓN DE API
+ * 
+ * Configuración para comunicación con backend.
+ */
+export const API_CONFIG = {
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  TIMEOUT: 10000,
+  RETRY_ATTEMPTS: 3
+} as const
+
+/**
+ * CONFIGURACIÓN DE NOTIFICACIONES
+ * 
+ * Configuración para sistema de notificaciones.
+ */
+export const NOTIFICATION_CONFIG = {
+  AUTO_HIDE_DURATION: 6000,
+  MAX_SNACKBARS: 3,
+  POSITION: {
+    vertical: 'bottom',
+    horizontal: 'right'
+  }
+} as const
