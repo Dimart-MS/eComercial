@@ -10,8 +10,32 @@
  * - Esquemas compuestos: Combinaciones de validadores atómicos
  * - Tipos TypeScript: Inferidos automáticamente
  * 
+ * PATRONES DE VALIDACIÓN:
+ * - Contraseñas: 8+ caracteres, mayúscula, minúscula, número, especial
+ * - Emails: Formato estándar con validación regex
+ * - Teléfonos: 10-15 dígitos, solo números
+ * - Nombres: 2-60 caracteres, letras y espacios
+ * - Códigos postales: 5-6 dígitos numéricos
+ * 
+ * USO EN COMPONENTES:
+ * ```typescript
+ * import { email, password, requiredString } from '@/utils/validators'
+ * 
+ * const schema = z.object({
+ *   email: email('Email'),
+ *   password: password('Contraseña'),
+ *   name: requiredString('Nombre')
+ * })
+ * ```
+ * 
+ * VALIDACIONES CRUZADAS:
+ * - Confirmación de contraseñas
+ * - Email o username para login
+ * - Validaciones dependientes
+ * 
  * @author Equipo eComercial - SITIC León
  * @version 1.0.0
+ * @lastModified 2024-12-19
  */
 
 import { z } from 'zod'

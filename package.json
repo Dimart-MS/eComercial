@@ -11,7 +11,12 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
-    "postinstall": "npm run build:icons"
+    "postinstall": "npm run build:icons",
+    "docs:validate": "echo 'Validando documentación...' && node scripts/validate-docs.js",
+    "docs:generate": "echo 'Generando documentación...' && node scripts/generate-docs.js",
+    "docs:check-links": "echo 'Verificando enlaces...' && node scripts/check-doc-links.js",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next && rm -rf node_modules && npm install"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",

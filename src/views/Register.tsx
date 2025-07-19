@@ -1,3 +1,48 @@
+/**
+ * PÁGINA DE REGISTRO - eComercial
+ * 
+ * Formulario de creación de cuentas de usuario.
+ * Implementa validaciones robustas y políticas de seguridad.
+ * 
+ * CAMPOS INCLUIDOS:
+ * - username: string (3-30 caracteres, alfanumérico)
+ * - email: string (formato email estándar)
+ * - password: string (8+ caracteres, mayúscula, minúscula, número, especial)
+ * - confirmPassword: string (debe coincidir con password)
+ * - agreeTerms: boolean (debe ser true)
+ * 
+ * VALIDACIONES:
+ * - Username: 3-30 caracteres, solo letras, números, puntos, guiones
+ * - Email: Formato estándar con validación regex
+ * - Password: Política de seguridad completa
+ * - ConfirmPassword: Validación cruzada con password
+ * - Terms: Checkbox requerido
+ * - Validación en tiempo real con Zod
+ * 
+ * FLUJO DE NAVEGACIÓN:
+ * - Acceso: /register
+ * - Validación: En tiempo real
+ * - Envío: POST a /api/auth/register
+ * - Redirección: /login en éxito, error en formulario
+ * 
+ * POLÍTICA DE CONTRASEÑAS:
+ * - Mínimo 8 caracteres
+ * - Al menos una mayúscula (A-Z)
+ * - Al menos una minúscula (a-z)
+ * - Al menos un número (0-9)
+ * - Al menos un carácter especial (!@#$%^&*...)
+ * 
+ * INTEGRACIÓN:
+ * - AuthContext para estado global
+ * - useRouter para navegación
+ * - react-hook-form + zod para validación
+ * - Validaciones cruzadas
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ * @lastModified 2024-12-19
+ */
+
 'use client'
 
 // React

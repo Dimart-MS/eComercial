@@ -1,3 +1,41 @@
+/**
+ * PÁGINA DE LOGIN - eComercial
+ * 
+ * Formulario de autenticación principal del sistema.
+ * Permite acceso con email o username y contraseña.
+ * 
+ * CAMPOS INCLUIDOS:
+ * - emailOrUsername: string (email o username válido)
+ * - password: string (requerido)
+ * - rememberMe: boolean (opcional)
+ * 
+ * VALIDACIONES:
+ * - Email: Formato estándar con regex
+ * - Username: 3-30 caracteres, alfanumérico
+ * - Password: Campo requerido
+ * - Validación en tiempo real con Zod
+ * 
+ * FLUJO DE NAVEGACIÓN:
+ * - Acceso: /login
+ * - Validación: En tiempo real
+ * - Envío: POST a /api/auth/login
+ * - Redirección: /panel en éxito, error en formulario
+ * 
+ * ESTADOS:
+ * - loading: Durante autenticación
+ * - error: Mensajes de error específicos
+ * - success: Redirección automática
+ * 
+ * INTEGRACIÓN:
+ * - AuthContext para estado global
+ * - useRouter para navegación
+ * - react-hook-form + zod para validación
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ * @lastModified 2024-12-19
+ */
+
 'use client'
 
 // React Imports

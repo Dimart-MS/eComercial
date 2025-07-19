@@ -4,15 +4,51 @@
  * Formulario dinámico para gestión de información de comunicación de contactos.
  * Permite agregar, editar y eliminar teléfonos, emails y redes sociales.
  * 
- * CARACTERÍSTICAS:
- * - Campos dinámicos con agregar/eliminar
- * - Validación en tiempo real con Zod
- * - Dropdown de países con búsqueda
- * - Manejo de estados de error por campo
+ * CAMPOS INCLUIDOS:
+ * - phones: Array de objetos con region, number, type
+ * - emails: Array de objetos con address, type
+ * - socialNetworks: Array de objetos con platform, username
+ * 
+ * TIPOS DE DATOS:
+ * - region: string (código de país, ej: +52)
+ * - number: string (10-15 dígitos, solo números)
+ * - type: string (tipo de contacto: personal, trabajo, etc.)
+ * - address: string (formato email estándar)
+ * - platform: string (red social: facebook, twitter, etc.)
+ * - username: string (3-30 caracteres, alfanumérico)
+ * 
+ * VALIDACIONES ESPECÍFICAS:
+ * - Teléfonos: 10-15 dígitos, solo números, región requerida
+ * - Emails: Formato estándar con regex, tipo requerido
+ * - Usernames: 3-30 caracteres, alfanumérico, puntos, guiones
+ * - Validación en tiempo real por campo individual
+ * - Estados de error independientes por campo
+ * 
+ * FLUJO DE NAVEGACIÓN:
+ * - Acceso: /panel/contactos/user/[id] → Pestaña Comunicación
+ * - Conexión: Integra con API de backend para CRUD
+ * - Validación: En tiempo real con feedback inmediato
+ * 
+ * CARACTERÍSTICAS ESPECIALES:
+ * - Campos dinámicos: Agregar/eliminar teléfonos y emails
+ * - Dropdown de países: Con códigos de región y banderas
+ * - Validación en tiempo real: Por campo individual
+ * - Estados de error: Independientes por campo
  * - Preparado para integración con API
+ * 
+ * EJEMPLO DE USO:
+ * ```tsx
+ * <EditComunicacionForm
+ *   data={userContacts}
+ *   onChange={handleContactChange}
+ *   onAdd={handleAddContact}
+ *   onRemove={handleRemoveContact}
+ * />
+ * ```
  * 
  * @author Equipo eComercial - SITIC León
  * @version 1.0.0
+ * @lastModified 2024-12-19
  */
 
 'use client'

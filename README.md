@@ -1,42 +1,267 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# eComercial - Sistema de Gestión de Contactos
 
-## Getting Started
+## 📋 Descripción del Proyecto
 
-First, run the development server:
+**eComercial** es una aplicación web moderna para la gestión integral de contactos comerciales, desarrollada con Next.js 14, TypeScript y Material-UI. El sistema permite administrar prospectos, clientes, proveedores y colaboradores con funcionalidades avanzadas de búsqueda, filtrado y validación.
 
-update apexcharts
+### 🎯 Características Principales
 
-```bash
-npm install apexcharts@latest
-# later use
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# iconos
-npm install react-icons
-# rutas
- npm install react-router-dom
+- **Gestión de Contactos**: CRUD completo con validaciones robustas
+- **Sistema de Autenticación**: Login/registro con validación Zod
+- **Interfaz Responsiva**: Diseño adaptativo con Material-UI y Tailwind CSS
+- **Búsqueda Avanzada**: Filtros dinámicos y ordenamiento multi-columna
+- **Validación en Tiempo Real**: Esquemas Zod con mensajes personalizados
+- **Arquitectura Modular**: Componentes reutilizables y escalables
+
+### 🏗️ Arquitectura del Sistema
+
+```
+maqueta-eComercial/
+├── src/
+│   ├── @core/           # Componentes y utilidades core
+│   ├── @layouts/        # Layouts de la aplicación
+│   ├── @menu/          # Sistema de navegación
+│   ├── app/            # Páginas Next.js 14 (App Router)
+│   ├── components/     # Componentes reutilizables
+│   ├── views/          # Vistas principales
+│   ├── utils/          # Utilidades y validaciones
+│   └── types/          # Definiciones TypeScript
+├── public/             # Archivos estáticos
+└── docs/              # Documentación técnica
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Instalación y Configuración
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerrequisitos
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Node.js 18+ 
+- npm, yarn o pnpm
+- Git
 
-## Learn More
+### Pasos de Instalación
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clonar el repositorio**
+```bash
+git clone <url-del-repositorio>
+cd maqueta-eComercial
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Instalar dependencias**
+```bash
+npm install
+# o
+yarn install
+# o
+pnpm install
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+3. **Configurar variables de entorno**
+```bash
+cp .env.example .env.local
+# Editar .env.local con las configuraciones necesarias
+```
 
-## Deploy on Vercel
+4. **Ejecutar en desarrollo**
+```bash
+npm run dev
+# o
+yarn dev
+# o
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. **Abrir en el navegador**
+```
+http://localhost:3000
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Scripts Disponibles
+
+```bash
+# Desarrollo
+npm run dev          # Servidor de desarrollo
+npm run build        # Construcción para producción
+npm run start        # Servidor de producción
+
+# Calidad de código
+npm run lint         # Verificar linting
+npm run lint:fix     # Corregir errores de linting
+npm run format       # Formatear código con Prettier
+
+# Utilidades
+npm run build:icons  # Generar bundle de iconos
+```
+
+## 📚 Documentación Técnica
+
+### Estructura de Módulos
+
+#### 1. Sistema de Validación (`src/utils/validators.ts`)
+- **Propósito**: Centraliza todas las validaciones del proyecto
+- **Características**: 
+  - Patrones regex optimizados
+  - Validadores atómicos reutilizables
+  - Esquemas compuestos con Zod
+  - Mensajes de error personalizados
+- **Uso**: Importar validadores específicos en formularios
+
+#### 2. Gestión de Contactos (`src/views/user/`)
+- **Tabla de Contactos** (`Table.tsx`): Vista principal con filtros y búsqueda
+- **Formularios de Edición**: Módulos especializados por tipo de información
+- **Validaciones**: Integración con sistema de validación centralizado
+
+#### 3. Sistema de Autenticación (`src/views/auth/`)
+- **Login** (`Login.tsx`): Autenticación con email/usuario
+- **Registro** (`Register.tsx`): Creación de cuentas con validaciones
+- **Recuperación** (`ForgotPassword.tsx`): Recuperación de contraseñas
+
+### Guía de Desarrollo
+
+#### Crear un Nuevo Formulario
+
+1. **Definir el esquema de validación** en `src/utils/validators.ts`:
+```typescript
+export const miFormularioSchema = z.object({
+  campo1: requiredString('Campo 1'),
+  campo2: email('Email'),
+  // ... más campos
+})
+```
+
+2. **Crear el componente** en `src/views/forms/`:
+```typescript
+/**
+ * FORMULARIO DE EJEMPLO - eComercial
+ * 
+ * Descripción del propósito del formulario
+ * 
+ * CAMPOS INCLUIDOS:
+ * - campo1: string (requerido, 2-60 caracteres)
+ * - campo2: email (formato estándar)
+ * 
+ * VALIDACIONES:
+ * - Validación en tiempo real con Zod
+ * - Mensajes de error personalizados
+ * 
+ * FLUJO DE NAVEGACIÓN:
+ * - Acceso: /ruta-del-formulario
+ * - Conexión: Integra con API de backend
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+```
+
+3. **Integrar con el sistema de navegación** usando `useUserNavigation`
+
+#### Personalización de Temas
+
+El sistema utiliza Material-UI con temas personalizables:
+
+- **Variables globales**: `src/configs/themeConfig.ts`
+- **Colores primarios**: `src/configs/primaryColorConfig.ts`
+- **Overrides**: `src/@core/theme/overrides/`
+
+### Estándares de Código
+
+#### Convenciones de Nomenclatura
+
+- **Componentes**: PascalCase (`MiComponente.tsx`)
+- **Funciones**: camelCase (`miFuncion`)
+- **Constantes**: UPPER_SNAKE_CASE (`MI_CONSTANTE`)
+- **Tipos**: PascalCase (`MiTipo`)
+
+#### Estructura de Comentarios
+
+```typescript
+/**
+ * NOMBRE DEL COMPONENTE - eComercial
+ * 
+ * Descripción del propósito y funcionalidad
+ * 
+ * CARACTERÍSTICAS:
+ * - Lista de características principales
+ * - Funcionalidades específicas
+ * 
+ * PROPIEDADES:
+ * - prop1: tipo - descripción
+ * - prop2: tipo - descripción
+ * 
+ * @author Equipo eComercial - SITIC León
+ * @version 1.0.0
+ */
+```
+
+### Despliegue
+
+#### Desarrollo
+```bash
+npm run dev
+```
+
+#### Producción
+```bash
+npm run build
+npm run start
+```
+
+#### Variables de Entorno Requeridas
+
+```env
+# Base de datos
+DATABASE_URL=
+
+# Autenticación
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+
+# APIs externas
+API_BASE_URL=
+```
+
+## 🔧 Mantenimiento
+
+### Actualización de Dependencias
+
+```bash
+# Verificar dependencias desactualizadas
+npm outdated
+
+# Actualizar dependencias
+npm update
+
+# Actualizar dependencias específicas
+npm install paquete@latest
+```
+
+### Extensión del Sistema
+
+1. **Nuevos módulos**: Crear en `src/views/` siguiendo la estructura existente
+2. **Nuevas validaciones**: Agregar en `src/utils/validators.ts`
+3. **Nuevos tipos**: Definir en `src/types/`
+4. **Nuevos componentes**: Crear en `src/components/`
+
+### Troubleshooting
+
+#### Problemas Comunes
+
+1. **Error de iconos**: Ejecutar `npm run build:icons`
+2. **Error de TypeScript**: Verificar tipos en `src/types/`
+3. **Error de validación**: Revisar esquemas en `src/utils/validators.ts`
+
+## 📄 Licencia
+
+Este proyecto es propiedad de **SITIC León** y tiene licencia comercial privada.
+
+## 👥 Equipo de Desarrollo
+
+- **Desarrollado por**: Equipo eComercial - SITIC León
+- **Versión actual**: 0.1.0
+- **Última actualización**: Diciembre 2024
+
+## 📞 Soporte
+
+Para soporte técnico o consultas sobre el desarrollo:
+- **Email**: desarrollo@siticleon.com
+- **Documentación**: `/docs/` en el repositorio
+- **Issues**: Crear issue en el repositorio del proyecto
